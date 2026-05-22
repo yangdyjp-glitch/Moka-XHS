@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "../lib/trpc.js";
 import { useAuth } from "../hooks/useAuth.js";
+import Dropdown from "../components/ui/Dropdown.js";
 
 const PRIORITY_LABEL: Record<string, string> = { high: "高", normal: "普通", low: "低" };
 const PRIORITY_STYLE: Record<string, string> = {
@@ -83,18 +84,16 @@ export default function RecommendationPage() {
           </div>
           <div className="flex items-center gap-3">
             {reviewsQuery.data && reviewsQuery.data.length > 0 && (
-              <select
-                onChange={(e) => { const val = e.target.value; if (val) handleGenerate(Number(val)); }}
-                className="border border-hairline bg-card px-3 py-1.5 text-sm focus:outline-none focus:border-accent"
-                defaultValue=""
-              >
-                <option value="" disabled>基于已有报告...</option>
-                {reviewsQuery.data.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.reviewType === "weekly" ? "周报" : "月报"} {r.periodStart}~{r.periodEnd}
-                  </option>
-                ))}
-              </select>
+              <Dropdown
+                value=""
+                onChange={(v) => { if (v) handleGenerate(Number(v)); }}
+                placeholder="基于已有报告..."
+                className="w-52"
+                options={reviewsQuery.data.map((r) => ({
+                  value: String(r.id),
+                  label: `${r.reviewType === "weekly" ? "周报" : "月报"} ${r.periodStart}~${r.periodEnd}`,
+                }))}
+              />
             )}
             <button
               onClick={() => handleGenerate()}
@@ -140,12 +139,12 @@ export default function RecommendationPage() {
             </div>
             <div>
               <label className="eyebrow block mb-1.5">分类</label>
-              <select value={eventForm.category} onChange={(e) => setEventForm((f) => ({ ...f, category: e.target.value }))}
-                className="border border-hairline bg-card px-2 py-1.5 text-sm focus:outline-none focus:border-accent">
-                {Object.entries(EVENT_CATEGORIES).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
+              <Dropdown
+                value={eventForm.category}
+                onChange={(v) => setEventForm((f) => ({ ...f, category: v }))}
+                className="w-32"
+                options={Object.entries(EVENT_CATEGORIES).map(([k, v]) => ({ value: k, label: v }))}
+              />
             </div>
             <button onClick={handleAddEvent} disabled={createEventMutation.isPending || !eventForm.title || !eventForm.eventDate}
               className="bg-ink text-card px-3 py-1.5 text-sm rounded-full hover:bg-ink-soft disabled:opacity-50 shrink-0">

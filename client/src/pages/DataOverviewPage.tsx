@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "../lib/trpc.js";
 import { SNAPSHOT_DAYS } from "@shared/enums.js";
+import Dropdown from "../components/ui/Dropdown.js";
 
 function daysSincePublish(publishedAt: string | Date): number {
   const pub = new Date(publishedAt);
@@ -25,16 +26,15 @@ export default function DataOverviewPage() {
             <p className="eyebrow mb-1">DATA OVERVIEW</p>
             <h1 className="editorial-heading text-[28px] leading-tight">数据情况</h1>
           </div>
-          <select
-            value={filterAccount}
-            onChange={(e) => setFilterAccount(e.target.value ? Number(e.target.value) : "")}
-            className="border border-hairline bg-card px-3 py-1.5 text-sm focus:outline-none focus:border-accent transition-colors min-w-[160px]"
-          >
-            <option value="">全部账号</option>
-            {accountsQuery.data?.map((a) => (
-              <option key={a.id} value={a.id}>{a.accountName}</option>
-            ))}
-          </select>
+          <Dropdown
+            value={String(filterAccount)}
+            onChange={(v) => setFilterAccount(v ? Number(v) : "")}
+            className="w-44"
+            options={[
+              { value: "", label: "全部账号" },
+              ...(accountsQuery.data?.map((a) => ({ value: String(a.id), label: a.accountName })) || []),
+            ]}
+          />
         </div>
         <div className="h-[1.5px] bg-ink" />
       </div>

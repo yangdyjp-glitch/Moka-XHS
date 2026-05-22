@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "../lib/trpc.js";
 import { ACCOUNT_LAYER, TOPIC_STATUS } from "@shared/enums.js";
+import Dropdown from "../components/ui/Dropdown.js";
 
 const HEALTH_DOT: Record<string, string> = {
   green: "bg-[#166534]",
@@ -22,7 +23,7 @@ const PERIOD_OPTIONS = [
 
 function NoteRankRow({ n, rank }: { n: any; rank: number }) {
   return (
-    <div className="flex items-center gap-4 py-3.5 border-b border-hairline last:border-0">
+    <div className="flex items-center gap-3 py-2.5 border-b border-hairline last:border-0">
       <span className="font-mono text-muted text-xs w-5 text-right shrink-0">
         {String(rank).padStart(2, "0")}
       </span>
@@ -32,16 +33,12 @@ function NoteRankRow({ n, rank }: { n: any; rank: number }) {
           {n.accountName} · {n.creatorName} · {n.topicType}
         </div>
       </div>
-      <div className="text-right shrink-0">
-        <div className="font-mono text-xs text-ink-soft">
-          {n.impression.toLocaleString()} <span className="text-muted">曝光</span>
-          {" "}{n.view.toLocaleString()} <span className="text-muted">阅读</span>
-        </div>
-        <div className="font-mono text-xs text-muted mt-0.5">
-          {n.likeCount} <span className="opacity-60">赞</span>
-          {" "}{n.collect} <span className="opacity-60">藏</span>
-          {" "}{n.commentCount} <span className="opacity-60">评</span>
-        </div>
+      <div className="flex items-center gap-3 shrink-0 font-mono text-xs">
+        <span>{n.impression.toLocaleString()} <span className="text-muted">曝光</span></span>
+        <span>{n.view.toLocaleString()} <span className="text-muted">阅读</span></span>
+        <span>{n.likeCount} <span className="text-muted">赞</span></span>
+        <span>{n.collect} <span className="text-muted">藏</span></span>
+        <span>{n.commentCount} <span className="text-muted">评</span></span>
       </div>
     </div>
   );
@@ -221,16 +218,15 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-4">
                 <p className="eyebrow">按类型</p>
                 {rankings.byType.length > 0 && (
-                  <select
+                  <Dropdown
                     value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
-                    className="border border-hairline bg-card px-3 py-1 text-sm focus:outline-none focus:border-accent"
-                  >
-                    <option value="">全部类型</option>
-                    {rankings.byType.map((t) => (
-                      <option key={t.type} value={t.type}>{t.type} ({t.count}篇)</option>
-                    ))}
-                  </select>
+                    onChange={setTypeFilter}
+                    className="w-36"
+                    options={[
+                      { value: "", label: "全部类型" },
+                      ...rankings.byType.map((t) => ({ value: t.type, label: `${t.type} (${t.count}篇)` })),
+                    ]}
+                  />
                 )}
               </div>
               {rankings.byType.length === 0 ? (

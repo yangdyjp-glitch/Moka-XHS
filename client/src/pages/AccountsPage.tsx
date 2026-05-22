@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "../lib/trpc.js";
 import { ACCOUNT_LAYER } from "../../../shared/enums.js";
+import Dropdown from "../components/ui/Dropdown.js";
 
 const PRESET_COLORS = [
   "#E74C3C", "#F39C12", "#F1C40F", "#2ECC71",
@@ -154,29 +155,23 @@ export default function AccountsPage() {
             </div>
             <div>
               <label className="eyebrow block mb-1.5">OWNER</label>
-              <select
-                value={form.ownerId}
-                onChange={(e) => setForm({ ...form, ownerId: Number(e.target.value) })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent"
-                required
-              >
-                <option value={0}>请选择</option>
-                {usersList?.map((u) => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
-                ))}
-              </select>
+              <Dropdown
+                value={String(form.ownerId)}
+                onChange={(v) => setForm({ ...form, ownerId: Number(v) })}
+                placeholder="请选择"
+                options={[
+                  { value: "0", label: "请选择" },
+                  ...(usersList?.map((u) => ({ value: String(u.id), label: u.name })) || []),
+                ]}
+              />
             </div>
             <div>
               <label className="eyebrow block mb-1.5">LAYER</label>
-              <select
+              <Dropdown
                 value={form.layer}
-                onChange={(e) => setForm({ ...form, layer: e.target.value as any })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent"
-              >
-                {Object.entries(ACCOUNT_LAYER).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
+                onChange={(v) => setForm({ ...form, layer: v as any })}
+                options={Object.entries(ACCOUNT_LAYER).map(([k, v]) => ({ value: k, label: v }))}
+              />
             </div>
             <div>
               <label className="eyebrow block mb-1.5">WEEKLY TARGET</label>
@@ -215,27 +210,19 @@ export default function AccountsPage() {
             </div>
             <div>
               <label className="eyebrow block mb-1.5">OWNER</label>
-              <select
-                value={editing.ownerId}
-                onChange={(e) => setEditing({ ...editing, ownerId: Number(e.target.value) })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent"
-              >
-                {usersList?.map((u) => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
-                ))}
-              </select>
+              <Dropdown
+                value={String(editing.ownerId)}
+                onChange={(v) => setEditing({ ...editing, ownerId: Number(v) })}
+                options={usersList?.map((u) => ({ value: String(u.id), label: u.name })) || []}
+              />
             </div>
             <div>
               <label className="eyebrow block mb-1.5">LAYER</label>
-              <select
+              <Dropdown
                 value={editing.layer}
-                onChange={(e) => setEditing({ ...editing, layer: e.target.value as EditForm["layer"] })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent"
-              >
-                {Object.entries(ACCOUNT_LAYER).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
+                onChange={(v) => setEditing({ ...editing, layer: v as EditForm["layer"] })}
+                options={Object.entries(ACCOUNT_LAYER).map(([k, v]) => ({ value: k, label: v }))}
+              />
             </div>
             <div>
               <label className="eyebrow block mb-1.5">WEEKLY TARGET</label>
@@ -258,15 +245,15 @@ export default function AccountsPage() {
             </div>
             <div>
               <label className="eyebrow block mb-1.5">STATUS</label>
-              <select
+              <Dropdown
                 value={editing.status}
-                onChange={(e) => setEditing({ ...editing, status: e.target.value as EditForm["status"] })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent"
-              >
-                <option value="active">启用</option>
-                <option value="paused">暂停</option>
-                <option value="archived">归档</option>
-              </select>
+                onChange={(v) => setEditing({ ...editing, status: v as EditForm["status"] })}
+                options={[
+                  { value: "active", label: "启用" },
+                  { value: "paused", label: "暂停" },
+                  { value: "archived", label: "归档" },
+                ]}
+              />
             </div>
             <div className="md:col-span-2">
               <label className="eyebrow block mb-1.5">COLOR</label>

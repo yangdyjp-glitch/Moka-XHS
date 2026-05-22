@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "../lib/trpc.js";
 import { USER_ROLE } from "../../../shared/enums.js";
+import Dropdown from "../components/ui/Dropdown.js";
 
 type EditForm = {
   id: number;
@@ -97,15 +98,11 @@ export default function UsersPage() {
             </div>
             <div>
               <label className="eyebrow block mb-1.5">ROLE</label>
-              <select
+              <Dropdown
                 value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value as any })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent"
-              >
-                {Object.entries(USER_ROLE).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
+                onChange={(v) => setForm({ ...form, role: v as any })}
+                options={Object.entries(USER_ROLE).map(([k, v]) => ({ value: k, label: v }))}
+              />
             </div>
             <div>
               <label className="eyebrow block mb-1.5">PASSWORD</label>
@@ -151,26 +148,22 @@ export default function UsersPage() {
             </div>
             <div>
               <label className="eyebrow block mb-1.5">ROLE</label>
-              <select
+              <Dropdown
                 value={editing.role}
-                onChange={(e) => setEditing({ ...editing, role: e.target.value as EditForm["role"] })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent"
-              >
-                {Object.entries(USER_ROLE).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
+                onChange={(v) => setEditing({ ...editing, role: v as EditForm["role"] })}
+                options={Object.entries(USER_ROLE).map(([k, v]) => ({ value: k, label: v }))}
+              />
             </div>
             <div>
               <label className="eyebrow block mb-1.5">STATUS</label>
-              <select
+              <Dropdown
                 value={editing.isActive ? "true" : "false"}
-                onChange={(e) => setEditing({ ...editing, isActive: e.target.value === "true" })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent"
-              >
-                <option value="true">启用</option>
-                <option value="false">禁用</option>
-              </select>
+                onChange={(v) => setEditing({ ...editing, isActive: v === "true" })}
+                options={[
+                  { value: "true", label: "启用" },
+                  { value: "false", label: "禁用" },
+                ]}
+              />
             </div>
           </div>
           <div className="flex gap-3 justify-end pt-1">
