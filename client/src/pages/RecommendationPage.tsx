@@ -2,7 +2,7 @@ import { useState } from "react";
 import { trpc } from "../lib/trpc.js";
 import { useAuth } from "../hooks/useAuth.js";
 
-const PRIORITY_LABEL: Record<string, string> = { high: "HIGH", normal: "NORMAL", low: "LOW" };
+const PRIORITY_LABEL: Record<string, string> = { high: "高", normal: "普通", low: "低" };
 const PRIORITY_STYLE: Record<string, string> = {
   high: "bg-[#FEE2E2] text-[#991B1B]",
   normal: "bg-paper-alt text-ink-soft",
@@ -10,11 +10,11 @@ const PRIORITY_STYLE: Record<string, string> = {
 };
 
 const EVENT_CATEGORIES: Record<string, string> = {
-  jlpt: "JLPT",
-  eju: "EJU",
-  undergraduate: "UNDERGRADUATE",
-  graduate: "GRADUATE",
-  other: "OTHER",
+  jlpt: "JLPT考试",
+  eju: "EJU考试",
+  undergraduate: "学部升学",
+  graduate: "大学院升学",
+  other: "其他",
 };
 
 const CATEGORY_STYLE: Record<string, string> = {
@@ -111,7 +111,7 @@ export default function RecommendationPage() {
       {/* Calendar Events */}
       <div className="card-surface p-5">
         <div className="flex items-center justify-between mb-3">
-          <p className="eyebrow">UPCOMING EVENTS</p>
+          <p className="eyebrow">近期事件</p>
           <div className="flex items-center gap-2">
             {upcomingEvents.length === 0 && (
               <button onClick={() => seedMutation.mutate()} disabled={seedMutation.isPending}
@@ -121,7 +121,7 @@ export default function RecommendationPage() {
             )}
             <button onClick={() => setShowAddEvent(!showAddEvent)}
               className="mono-data text-accent hover:text-accent-deep">
-              {showAddEvent ? "取消" : "+ ADD EVENT"}
+              {showAddEvent ? "取消" : "+ 添加事件"}
             </button>
           </div>
         </div>
@@ -129,17 +129,17 @@ export default function RecommendationPage() {
         {showAddEvent && (
           <div className="flex items-end gap-2 mb-4 p-3 bg-paper border border-hairline">
             <div className="flex-1">
-              <label className="eyebrow block mb-1.5">NAME</label>
+              <label className="eyebrow block mb-1.5">名称</label>
               <input value={eventForm.title} onChange={(e) => setEventForm((f) => ({ ...f, title: e.target.value }))}
                 className="w-full border border-hairline bg-card px-2 py-1.5 text-sm focus:outline-none focus:border-accent" placeholder="如：MEXT奖学金申请截止" />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">DATE</label>
+              <label className="eyebrow block mb-1.5">日期</label>
               <input type="date" value={eventForm.eventDate} onChange={(e) => setEventForm((f) => ({ ...f, eventDate: e.target.value }))}
                 className="border border-hairline bg-card px-2 py-1.5 text-sm focus:outline-none focus:border-accent" />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">CATEGORY</label>
+              <label className="eyebrow block mb-1.5">分类</label>
               <select value={eventForm.category} onChange={(e) => setEventForm((f) => ({ ...f, category: e.target.value }))}
                 className="border border-hairline bg-card px-2 py-1.5 text-sm focus:outline-none focus:border-accent">
                 {Object.entries(EVENT_CATEGORIES).map(([k, v]) => (
@@ -171,7 +171,7 @@ export default function RecommendationPage() {
                         <span className="font-medium">{ev.eventDate}</span>
                         <span>{ev.title}</span>
                         <span className={daysUntil <= 14 ? "text-[#991B1B] font-bold" : "opacity-50"}>
-                          {daysUntil > 0 ? `${daysUntil}D` : daysUntil === 0 ? "TODAY" : "PAST"}
+                          {daysUntil > 0 ? `${daysUntil}天` : daysUntil === 0 ? "今天" : "已过"}
                         </span>
                         {!ev.isBuiltin && (
                           <button onClick={() => deleteEventMutation.mutate({ id: ev.id })} className="ml-0.5 opacity-40 hover:opacity-100 hover:text-[#991B1B]">x</button>
@@ -195,7 +195,7 @@ export default function RecommendationPage() {
         <div className="space-y-5">
           {displayResult.strategy && (
             <div className="card-surface p-5 border-l-[3px] border-accent">
-              <p className="eyebrow mb-2">STRATEGY</p>
+              <p className="eyebrow mb-2">策略建议</p>
               <p className="text-sm text-ink-soft leading-relaxed">{displayResult.strategy}</p>
             </div>
           )}

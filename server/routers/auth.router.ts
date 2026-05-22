@@ -178,7 +178,8 @@ export const authRouter = router({
         await db.delete(users).where(eq(users.id, input.id));
         return { success: true };
       } catch (e: any) {
-        if (e.cause?.code === "23503") {
+        const code = e.code || e.cause?.code;
+        if (code === "23503" || e.message?.includes("foreign key") || e.message?.includes("violates")) {
           throw new Error("该用户有关联数据（账号/选题等），请先删除关联数据或改为禁用");
         }
         throw e;

@@ -70,7 +70,10 @@ export default function AccountsPage() {
   const { data: usersList } = trpc.auth.listUsers.useQuery();
   const createAccount = trpc.account.create.useMutation({ onSuccess: () => refetch() });
   const updateAccount = trpc.account.update.useMutation({ onSuccess: () => { refetch(); setEditing(null); } });
-  const deleteAccount = trpc.account.delete.useMutation({ onSuccess: () => refetch() });
+  const deleteAccount = trpc.account.delete.useMutation({
+    onSuccess: () => refetch(),
+    onError: (err) => window.alert(err.message),
+  });
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<EditForm | null>(null);

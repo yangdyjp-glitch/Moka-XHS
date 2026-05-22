@@ -14,10 +14,10 @@ const HEALTH_LABEL: Record<string, { bg: string; text: string; label: string }> 
 };
 
 const PERIOD_OPTIONS = [
-  { value: "7" as const, label: "7D" },
-  { value: "14" as const, label: "14D" },
-  { value: "30" as const, label: "30D" },
-  { value: "all" as const, label: "ALL" },
+  { value: "7" as const, label: "7天" },
+  { value: "14" as const, label: "14天" },
+  { value: "30" as const, label: "30天" },
+  { value: "all" as const, label: "全部" },
 ];
 
 function NoteRankRow({ n, rank }: { n: any; rank: number }) {
@@ -34,13 +34,13 @@ function NoteRankRow({ n, rank }: { n: any; rank: number }) {
       </div>
       <div className="text-right shrink-0">
         <div className="font-mono text-xs text-ink-soft">
-          {n.impression.toLocaleString()} <span className="text-muted">IMP</span>
-          {" "}{n.view.toLocaleString()} <span className="text-muted">VIEW</span>
+          {n.impression.toLocaleString()} <span className="text-muted">曝光</span>
+          {" "}{n.view.toLocaleString()} <span className="text-muted">阅读</span>
         </div>
         <div className="font-mono text-xs text-muted mt-0.5">
-          {n.likeCount} <span className="opacity-60">LIKE</span>
-          {" "}{n.collect} <span className="opacity-60">FAV</span>
-          {" "}{n.commentCount} <span className="opacity-60">CMT</span>
+          {n.likeCount} <span className="opacity-60">赞</span>
+          {" "}{n.collect} <span className="opacity-60">藏</span>
+          {" "}{n.commentCount} <span className="opacity-60">评</span>
         </div>
       </div>
     </div>
@@ -49,6 +49,7 @@ function NoteRankRow({ n, rank }: { n: any; rank: number }) {
 
 export default function DashboardPage() {
   const [period, setPeriod] = useState<"7" | "14" | "30" | "all">("30");
+  const [typeFilter, setTypeFilter] = useState<string>("");
 
   const dashQuery = trpc.dashboard.overview.useQuery(undefined, { refetchOnWindowFocus: false });
   const rankingsQuery = trpc.dashboard.rankings.useQuery({ period }, { refetchOnWindowFocus: false });
@@ -67,23 +68,23 @@ export default function DashboardPage() {
   const statusMap = totals.topicsByStatus as Record<string, number>;
 
   const kpiItems = [
-    { eyebrow: "ACTIVE ACCOUNTS", value: totals.totalAccounts, unit: "个", desc: "活跃账号" },
-    { eyebrow: "THIS WEEK", value: totals.totalNotesThisWeek, unit: "篇", desc: "本周发布" },
-    { eyebrow: "IMPRESSIONS", value: totals.totalImpression, unit: "", desc: "总曝光" },
-    { eyebrow: "VIEWS", value: totals.totalView, unit: "", desc: "总阅读" },
-    { eyebrow: "LIKES", value: totals.totalLike, unit: "", desc: "总点赞" },
-    { eyebrow: "FAVORITES", value: totals.totalCollect, unit: "", desc: "总收藏" },
+    { eyebrow: "活跃账号", value: totals.totalAccounts, unit: "个" },
+    { eyebrow: "本周发布", value: totals.totalNotesThisWeek, unit: "篇" },
+    { eyebrow: "总曝光", value: totals.totalImpression, unit: "" },
+    { eyebrow: "总阅读", value: totals.totalView, unit: "" },
+    { eyebrow: "总点赞", value: totals.totalLike, unit: "" },
+    { eyebrow: "总收藏", value: totals.totalCollect, unit: "" },
   ];
 
   return (
     <div className="space-y-10">
       {/* Editorial Header */}
       <div>
-        <p className="eyebrow mb-2">OVERVIEW</p>
+        <p className="eyebrow mb-2">总览</p>
         <div className="flex items-end justify-between">
           <h1 className="editorial-heading text-[36px] leading-tight">矩阵总览</h1>
           <span className="mono-data text-muted">
-            DATA SNAPSHOT · {new Date().toLocaleDateString("zh-CN")}
+            数据快照 · {new Date().toLocaleDateString("zh-CN")}
           </span>
         </div>
         <div className="h-[1.5px] bg-ink mt-3" />
@@ -102,7 +103,6 @@ export default function DashboardPage() {
                 {(k.value || 0).toLocaleString()}
                 {k.unit && <span className="text-muted text-sm font-sans font-normal ml-1">{k.unit}</span>}
               </div>
-              <p className="text-xs text-muted mt-1">{k.desc}</p>
             </div>
           ))}
         </div>
@@ -110,7 +110,7 @@ export default function DashboardPage() {
 
       {/* Topic Pipeline */}
       <div>
-        <p className="eyebrow mb-3">TOPIC PIPELINE</p>
+        <p className="eyebrow mb-3">选题进度</p>
         <div className="card-surface px-6 py-5">
           <div className="flex gap-6 flex-wrap">
             {Object.entries(TOPIC_STATUS).map(([key, label]) => (
@@ -125,7 +125,7 @@ export default function DashboardPage() {
 
       {/* Account Health Grid */}
       <div>
-        <p className="eyebrow mb-3">ACCOUNT HEALTH</p>
+        <p className="eyebrow mb-3">账号健康度</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-hairline card-surface overflow-hidden">
           {accounts.map((acct) => {
             const health = HEALTH_LABEL[acct.health] || HEALTH_LABEL.green;
@@ -161,10 +161,10 @@ export default function DashboardPage() {
                 {/* Metrics row */}
                 <div className="grid grid-cols-4 gap-2 pt-3 border-t border-hairline">
                   {[
-                    { label: "IMP", value: acct.totalImpression },
-                    { label: "VIEW", value: acct.totalView },
-                    { label: "LIKE", value: acct.totalLike },
-                    { label: "FAV", value: acct.totalCollect },
+                    { label: "曝光", value: acct.totalImpression },
+                    { label: "阅读", value: acct.totalView },
+                    { label: "点赞", value: acct.totalLike },
+                    { label: "收藏", value: acct.totalCollect },
                   ].map((m) => (
                     <div key={m.label} className="text-center">
                       <div className="font-serif font-bold text-ink text-sm">{m.value.toLocaleString()}</div>
@@ -184,7 +184,7 @@ export default function DashboardPage() {
       {/* Rankings Section */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <p className="eyebrow">CONTENT RANKINGS</p>
+          <p className="eyebrow">内容排行</p>
           <div className="flex border border-hairline bg-card">
             {PERIOD_OPTIONS.map((opt) => (
               <button
@@ -208,7 +208,7 @@ export default function DashboardPage() {
           <div className="space-y-6">
             {/* Top 5 */}
             <div className="card-surface p-5 lg:p-6">
-              <p className="eyebrow mb-4">TOP 5</p>
+              <p className="eyebrow mb-4">总排名 TOP 5</p>
               {rankings.top5.length === 0 ? (
                 <p className="text-sm text-muted">暂无数据</p>
               ) : (
@@ -218,12 +218,28 @@ export default function DashboardPage() {
 
             {/* By Type */}
             <div className="card-surface p-5 lg:p-6">
-              <p className="eyebrow mb-4">BY TYPE</p>
+              <div className="flex items-center justify-between mb-4">
+                <p className="eyebrow">按类型</p>
+                {rankings.byType.length > 0 && (
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    className="border border-hairline bg-card px-3 py-1 text-sm focus:outline-none focus:border-accent"
+                  >
+                    <option value="">全部类型</option>
+                    {rankings.byType.map((t) => (
+                      <option key={t.type} value={t.type}>{t.type} ({t.count}篇)</option>
+                    ))}
+                  </select>
+                )}
+              </div>
               {rankings.byType.length === 0 ? (
                 <p className="text-sm text-muted">暂无数据</p>
               ) : (
                 <div className="space-y-5">
-                  {rankings.byType.map((t) => (
+                  {rankings.byType
+                    .filter((t) => !typeFilter || t.type === typeFilter)
+                    .map((t) => (
                     <div key={t.type}>
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-serif font-bold text-ink text-sm">{t.type}</span>
@@ -238,15 +254,15 @@ export default function DashboardPage() {
 
             {/* Type x Teacher */}
             <div className="card-surface p-5 lg:p-6">
-              <p className="eyebrow mb-4">TYPE × TEACHER</p>
+              <p className="eyebrow mb-4">类型 × 老师</p>
               {rankings.byTypeTeacher.length === 0 ? (
                 <p className="text-sm text-muted">暂无数据</p>
               ) : (
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b-2 border-ink">
-                      <th className="eyebrow text-left py-2.5 pr-4">TYPE</th>
-                      <th className="eyebrow text-left py-2.5">DISTRIBUTION</th>
+                      <th className="eyebrow text-left py-2.5 pr-4">类型</th>
+                      <th className="eyebrow text-left py-2.5">分布</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -271,7 +287,7 @@ export default function DashboardPage() {
 
             {/* By Teacher */}
             <div className="card-surface p-5 lg:p-6">
-              <p className="eyebrow mb-4">BY TEACHER · TOP 3</p>
+              <p className="eyebrow mb-4">按老师 · TOP 3</p>
               {rankings.byTeacher.length === 0 ? (
                 <p className="text-sm text-muted">暂无数据</p>
               ) : (
@@ -295,7 +311,7 @@ export default function DashboardPage() {
       {/* Footer */}
       <div className="border-t border-hairline pt-4 pb-2">
         <p className="mono-data text-muted text-center">
-          STATIC SNAPSHOT · {new Date().toLocaleDateString("zh-CN")} · MATRIX COMPASS
+          数据快照 · {new Date().toLocaleDateString("zh-CN")} · 矩阵罗盘
         </p>
       </div>
     </div>

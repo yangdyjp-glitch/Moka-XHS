@@ -69,7 +69,8 @@ export const accountRouter = router({
         await db.delete(accounts).where(eq(accounts.id, input.id));
         return { success: true };
       } catch (e: any) {
-        if (e.cause?.code === "23503") {
+        const code = e.code || e.cause?.code;
+        if (code === "23503" || e.message?.includes("foreign key") || e.message?.includes("violates")) {
           throw new Error("该账号有关联数据（选题/笔记等），请先删除关联数据或改为归档");
         }
         throw e;
