@@ -1,6 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+function getClient() {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "your-anthropic-api-key-here") {
+    throw new Error("请在Railway环境变量或.env中设置有效的ANTHROPIC_API_KEY");
+  }
+  return new Anthropic({ apiKey });
+}
 
 export interface ReviewInputData {
   period: { start: string; end: string };
@@ -68,21 +74,27 @@ ${data.notes.map(n => {
 
 只输出JSON，不要其他文字。`;
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 2000,
-    messages: [{ role: "user", content: prompt }],
-  });
+  try {
+    const client = getClient();
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 2000,
+      messages: [{ role: "user", content: prompt }],
+    });
 
-  const text = response.content[0].type === "text" ? response.content[0].text : "";
-  const tokensUsed = (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0);
+    const text = response.content[0].type === "text" ? response.content[0].text : "";
+    const tokensUsed = (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0);
 
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  const result: AnalysisResult = jsonMatch
-    ? JSON.parse(jsonMatch[0])
-    : { summary: text, topPerformers: [], bottomPerformers: [], contentFormulas: [], trends: [], improvements: [] };
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const result: AnalysisResult = jsonMatch
+      ? JSON.parse(jsonMatch[0])
+      : { summary: text, topPerformers: [], bottomPerformers: [], contentFormulas: [], trends: [], improvements: [] };
 
-  return { result, tokensUsed, prompt };
+    return { result, tokensUsed, prompt };
+  } catch (e: any) {
+    if (e.message?.includes("ANTHROPIC_API_KEY")) throw e;
+    throw new Error(`AI分析失败: ${e.message || "未知错误"}`);
+  }
 }
 
 export interface UpcomingEvent {
@@ -131,19 +143,25 @@ ${upcomingEvents.map(e => `- ${e.eventDate} ${e.title}（${e.category}）`).join
 
 只输出JSON，不要其他文字。`;
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 2000,
-    messages: [{ role: "user", content: prompt }],
-  });
+  try {
+    const client = getClient();
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 2000,
+      messages: [{ role: "user", content: prompt }],
+    });
 
-  const text = response.content[0].type === "text" ? response.content[0].text : "";
-  const tokensUsed = (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0);
+    const text = response.content[0].type === "text" ? response.content[0].text : "";
+    const tokensUsed = (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0);
 
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  const result: RecommendationResult = jsonMatch
-    ? JSON.parse(jsonMatch[0])
-    : { recommendations: [], strategy: text };
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const result: RecommendationResult = jsonMatch
+      ? JSON.parse(jsonMatch[0])
+      : { recommendations: [], strategy: text };
 
-  return { result, tokensUsed, prompt };
+    return { result, tokensUsed, prompt };
+  } catch (e: any) {
+    if (e.message?.includes("ANTHROPIC_API_KEY")) throw e;
+    throw new Error(`AI推荐生成失败: ${e.message || "未知错误"}`);
+  }
 }

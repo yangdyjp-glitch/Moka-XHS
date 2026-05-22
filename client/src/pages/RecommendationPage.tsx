@@ -37,7 +37,6 @@ export default function RecommendationPage() {
   const pastQuery = trpc.review.listRecommendations.useQuery({ limit: 5 }, { refetchOnWindowFocus: false });
   const reviewsQuery = trpc.review.list.useQuery({ type: "weekly", limit: 5 }, { refetchOnWindowFocus: false });
   const upcomingQuery = trpc.event.upcoming.useQuery({ days: 90 }, { refetchOnWindowFocus: false });
-  const seedMutation = trpc.event.seedBuiltin.useMutation({ onSuccess: () => utils.event.upcoming.invalidate() });
   const createEventMutation = trpc.event.create.useMutation({
     onSuccess: () => { setShowAddEvent(false); setEventForm({ title: "", eventDate: "", category: "other" }); utils.event.upcoming.invalidate(); },
   });
@@ -111,18 +110,12 @@ export default function RecommendationPage() {
       <div className="card-surface p-5">
         <div className="flex items-center justify-between mb-3">
           <p className="eyebrow">近期事件</p>
-          <div className="flex items-center gap-2">
-            {upcomingEvents.length === 0 && (
-              <button onClick={() => seedMutation.mutate()} disabled={seedMutation.isPending}
-                className="mono-data text-muted hover:text-ink px-3 py-1 border border-hairline transition-colors">
-                {seedMutation.isPending ? "导入中..." : "导入内置事件"}
-              </button>
-            )}
-            <button onClick={() => setShowAddEvent(!showAddEvent)}
-              className="mono-data text-accent hover:text-accent-deep">
-              {showAddEvent ? "取消" : "+ 添加事件"}
-            </button>
-          </div>
+          <button onClick={() => setShowAddEvent(!showAddEvent)}
+            className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+              showAddEvent ? "bg-paper-alt text-muted hover:text-ink" : "bg-accent text-white hover:bg-accent-deep"
+            }`}>
+            {showAddEvent ? "取消" : "+ 添加事件"}
+          </button>
         </div>
 
         {showAddEvent && (
@@ -154,7 +147,7 @@ export default function RecommendationPage() {
         )}
 
         {upcomingEvents.length === 0 ? (
-          <p className="text-sm text-muted font-serif italic">暂无近期事件，点击「导入内置事件」加载考试/升学节点</p>
+          <p className="text-sm text-muted font-serif italic">加载中...</p>
         ) : (
           <div className="space-y-3">
             {Object.entries(groupedEvents).map(([cat, events]) => (

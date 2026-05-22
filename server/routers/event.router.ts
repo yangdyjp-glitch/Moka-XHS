@@ -71,6 +71,17 @@ export const eventRouter = router({
   upcoming: protectedProcedure
     .input(z.object({ days: z.number().default(60) }).optional())
     .query(async ({ input }) => {
+      const existing = await db
+        .select({ id: calendarEvents.id })
+        .from(calendarEvents)
+        .where(eq(calendarEvents.isBuiltin, true))
+        .limit(1);
+      if (existing.length === 0) {
+        await db.insert(calendarEvents).values(
+          BUILTIN_EVENTS.map((e) => ({ ...e, isBuiltin: true }))
+        );
+      }
+
       const now = new Date();
       const today = now.toISOString().split("T")[0];
       const future = new Date(now);

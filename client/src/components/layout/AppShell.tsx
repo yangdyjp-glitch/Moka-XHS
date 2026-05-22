@@ -5,10 +5,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-paper flex overflow-x-hidden">
+    <div className="bg-paper flex overflow-x-hidden">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 min-w-0">
         {/* Mobile header */}
         <header className="h-12 bg-[#0F172A] flex items-center px-4 lg:hidden">
           <button
