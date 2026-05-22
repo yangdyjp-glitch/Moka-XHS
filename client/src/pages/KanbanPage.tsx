@@ -34,7 +34,7 @@ function AccountFilter({ accounts, value, onChange }: {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="border border-hairline bg-card px-3 py-1.5 text-sm flex items-center gap-1.5 hover:border-accent transition-colors"
+        className="border border-hairline bg-card px-4 py-1.5 text-sm flex items-center gap-2 hover:border-accent transition-colors min-w-[160px] justify-between"
       >
         <span>{label}</span>
         <svg className="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
