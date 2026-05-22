@@ -1,0 +1,237 @@
+import { useState } from "react";
+import { trpc } from "../lib/trpc.js";
+
+function formatDate(d: string) {
+  return new Date(d).toLocaleDateString("zh-CN", { month: "long", day: "numeric" });
+}
+
+export default function ReviewPage() {
+  const [tab, setTab] = useState<"weekly" | "monthly">("weekly");
+  const [selectedReview, setSelectedReview] = useState<number | null>(null);
+
+  const reviewsQuery = trpc.review.list.useQuery(
+    { type: tab, limit: 20 },
+    { refetchOnWindowFocus: false }
+  );
+  const detailQuery = trpc.review.getById.useQuery(
+    { id: selectedReview! },
+    { enabled: !!selectedReview, refetchOnWindowFocus: false }
+  );
+
+  const generateMutation = trpc.review.generate.useMutation({
+    onSuccess: (data) => {
+      reviewsQuery.refetch();
+      setSelectedReview(data.review.id);
+    },
+  });
+  const analyzeMutation = trpc.review.aiAnalyze.useMutation({
+    onSuccess: () => detailQuery.refetch(),
+  });
+
+  const review = detailQuery.data;
+  const summaryJson = review?.summaryJson as any;
+  const latestAnalysis = review?.analyses?.[0];
+  const analysisResult = latestAnalysis?.resultJson as any;
+
+  return (
+    <div>
+      {/* Editorial Header */}
+      <div className="mb-6">
+        <div className="flex items-end justify-between mb-3">
+          <div>
+            <p className="eyebrow mb-1">REVIEW</p>
+            <h1 className="editorial-heading text-[28px] leading-tight">复盘报告</h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex border border-hairline bg-card">
+              <button
+                onClick={() => { setTab("weekly"); setSelectedReview(null); }}
+                className={`px-4 py-1.5 font-mono text-[11px] tracking-wider transition-colors ${tab === "weekly" ? "bg-ink text-card" : "text-muted hover:text-ink"}`}
+              >
+                WEEKLY
+              </button>
+              <button
+                onClick={() => { setTab("monthly"); setSelectedReview(null); }}
+                className={`px-4 py-1.5 font-mono text-[11px] tracking-wider transition-colors ${tab === "monthly" ? "bg-ink text-card" : "text-muted hover:text-ink"}`}
+              >
+                MONTHLY
+              </button>
+            </div>
+            <button
+              onClick={() => generateMutation.mutate({ type: tab })}
+              disabled={generateMutation.isPending}
+              className="bg-ink text-card px-4 py-1.5 text-sm font-medium rounded-full hover:bg-ink-soft disabled:opacity-50"
+            >
+              {generateMutation.isPending ? "生成中..." : `生成${tab === "weekly" ? "周" : "月"}报`}
+            </button>
+          </div>
+        </div>
+        <div className="h-[1.5px] bg-ink" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Report List */}
+        <div className="md:col-span-1 space-y-2">
+          <p className="eyebrow mb-2">HISTORY</p>
+          {reviewsQuery.isLoading && <p className="text-sm text-muted font-serif italic">加载中...</p>}
+          {reviewsQuery.data?.length === 0 && <p className="text-sm text-muted font-serif italic">暂无报告</p>}
+          {reviewsQuery.data?.map((r) => (
+            <div
+              key={r.id}
+              onClick={() => setSelectedReview(r.id)}
+              className={`card-surface p-3 cursor-pointer text-sm transition-colors ${
+                selectedReview === r.id ? "border-accent bg-[#EFF6FF]" : "hover:bg-[#F0F4FA]"
+              }`}
+            >
+              <div className="font-medium text-ink">
+                {r.reviewType === "weekly" ? "周报" : "月报"}
+                {r.scope === "account" ? " (单号)" : " (全矩阵)"}
+              </div>
+              <div className="mono-data text-muted mt-1">
+                {formatDate(r.periodStart)} – {formatDate(r.periodEnd)}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Report Detail */}
+        <div className="md:col-span-3">
+          {!selectedReview ? (
+            <div className="text-muted text-center py-20 font-serif italic">
+              {reviewsQuery.data?.length ? "选择一份报告查看详情" : "点击右上角按钮生成第一份报告"}
+            </div>
+          ) : detailQuery.isLoading ? (
+            <div className="text-muted text-center py-20 font-serif italic">加载中...</div>
+          ) : review ? (
+            <div className="space-y-5">
+              {/* Header */}
+              <div className="card-surface p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-serif font-bold text-lg text-ink">
+                    {review.reviewType === "weekly" ? "周报" : "月报"} ·{" "}
+                    {formatDate(review.periodStart)} – {formatDate(review.periodEnd)}
+                  </h2>
+                  <span className="status-pill bg-[#DBEAFE] text-accent">
+                    {review.scope === "account" ? "单号" : "全矩阵"}
+                  </span>
+                </div>
+                {review.highlights && (
+                  <p className="text-sm text-ink-soft">{review.highlights}</p>
+                )}
+              </div>
+
+              {/* KPI Summary */}
+              {summaryJson && (
+                <div className="card-surface">
+                  <div className="grid grid-cols-3 sm:grid-cols-6">
+                    {[
+                      { eyebrow: "NOTES", value: summaryJson.noteCount },
+                      { eyebrow: "IMP", value: summaryJson.totalImpression },
+                      { eyebrow: "VIEW", value: summaryJson.totalView },
+                      { eyebrow: "LIKE", value: summaryJson.totalLike },
+                      { eyebrow: "FAV", value: summaryJson.totalCollect },
+                      { eyebrow: "CMT", value: summaryJson.totalComment },
+                    ].map((m, i) => (
+                      <div key={m.eyebrow} className={`px-4 py-4 text-center ${i > 0 ? "border-l border-hairline" : ""}`}>
+                        <div className="kpi-value text-xl">{(m.value || 0).toLocaleString()}</div>
+                        <div className="font-mono text-[9px] tracking-widest text-muted mt-1">{m.eyebrow}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* AI Analysis */}
+              <div className="card-surface p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="eyebrow">AI ANALYSIS</p>
+                  <button
+                    onClick={() => analyzeMutation.mutate({ reviewId: review.id })}
+                    disabled={analyzeMutation.isPending}
+                    className="bg-accent text-white px-4 py-1.5 text-sm rounded-full hover:bg-accent-deep disabled:opacity-50"
+                  >
+                    {analyzeMutation.isPending ? "分析中..." : latestAnalysis ? "重新分析" : "AI 分析"}
+                  </button>
+                </div>
+
+                {analyzeMutation.isError && (
+                  <div className="text-sm text-[#991B1B] bg-[#FEE2E2] px-3 py-2 mb-3">{analyzeMutation.error?.message || "分析失败"}</div>
+                )}
+
+                {analysisResult ? (
+                  <div className="space-y-5 text-sm">
+                    <p className="text-ink-soft leading-relaxed">{analysisResult.summary}</p>
+
+                    {analysisResult.topPerformers?.length > 0 && (
+                      <div>
+                        <p className="eyebrow mb-2 text-[#166534]">TOP PERFORMERS</p>
+                        {analysisResult.topPerformers.map((t: any, i: number) => (
+                          <div key={i} className="flex gap-2 py-1.5 border-b border-hairline last:border-0">
+                            <span className="text-[#166534] shrink-0 font-mono text-xs">+</span>
+                            <span className="text-ink-soft"><strong className="text-ink">{t.title}</strong> — {t.reason}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {analysisResult.bottomPerformers?.length > 0 && (
+                      <div>
+                        <p className="eyebrow mb-2 text-[#9A3412]">NEEDS IMPROVEMENT</p>
+                        {analysisResult.bottomPerformers.map((t: any, i: number) => (
+                          <div key={i} className="flex gap-2 py-1.5 border-b border-hairline last:border-0">
+                            <span className="text-[#9A3412] shrink-0 font-mono text-xs">-</span>
+                            <span className="text-ink-soft"><strong className="text-ink">{t.title}</strong> — {t.reason}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {analysisResult.contentFormulas?.length > 0 && (
+                      <div>
+                        <p className="eyebrow mb-2">CONTENT FORMULA</p>
+                        <ul className="space-y-1 text-ink-soft">
+                          {analysisResult.contentFormulas.map((f: string, i: number) => (
+                            <li key={i} className="flex gap-2"><span className="text-accent font-mono text-xs">*</span>{f}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {analysisResult.trends?.length > 0 && (
+                      <div>
+                        <p className="eyebrow mb-2">TRENDS</p>
+                        <ul className="space-y-1 text-ink-soft">
+                          {analysisResult.trends.map((t: string, i: number) => (
+                            <li key={i} className="flex gap-2"><span className="text-[#6D28D9] font-mono text-xs">*</span>{t}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {analysisResult.improvements?.length > 0 && (
+                      <div>
+                        <p className="eyebrow mb-2">IMPROVEMENTS</p>
+                        <ul className="space-y-1 text-ink-soft">
+                          {analysisResult.improvements.map((imp: string, i: number) => (
+                            <li key={i} className="flex gap-2"><span className="text-[#9A3412] font-mono text-xs">*</span>{imp}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    <div className="mono-data text-muted pt-3 border-t border-hairline">
+                      {latestAnalysis?.modelUsed} · {latestAnalysis?.tokensUsed} tokens ·{" "}
+                      {new Date(latestAnalysis!.createdAt).toLocaleString("zh-CN")}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted font-serif italic">点击「AI 分析」获取智能复盘报告</p>
+                )}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
