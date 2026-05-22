@@ -34,7 +34,7 @@ function AccountFilter({ accounts, value, onChange }: {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="border border-hairline bg-card px-3 py-2 text-sm flex items-center gap-2 hover:border-accent transition-colors w-44 justify-between"
+        className="border border-hairline bg-card px-3 py-2 text-sm flex items-center gap-2 hover:border-accent transition-colors w-[16.5rem] justify-between"
       >
         <span>{label}</span>
         <svg className="w-3 h-3 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,7 +42,7 @@ function AccountFilter({ accounts, value, onChange }: {
         </svg>
       </button>
       {open && (
-        <div className="absolute top-full right-0 mt-1 bg-card border border-hairline shadow-lg z-20 min-w-[200px] max-h-60 overflow-y-auto">
+        <div className="absolute top-full right-0 mt-1 bg-card border border-hairline shadow-lg z-20 min-w-[16.5rem] max-h-60 overflow-y-auto">
           <div
             onClick={() => { onChange(""); setOpen(false); }}
             className={`px-3 py-2 text-sm cursor-pointer transition-colors ${value === "" ? "bg-[#EFF6FF] text-accent font-medium" : "hover:bg-[#F0F4FA]"}`}

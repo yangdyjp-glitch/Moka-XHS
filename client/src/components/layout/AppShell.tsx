@@ -5,7 +5,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="bg-paper flex overflow-x-hidden">
+    <div className="bg-paper flex min-h-screen">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 min-w-0">

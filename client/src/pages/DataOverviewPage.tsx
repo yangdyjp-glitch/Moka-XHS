@@ -29,7 +29,7 @@ export default function DataOverviewPage() {
           <Dropdown
             value={String(filterAccount)}
             onChange={(v) => setFilterAccount(v ? Number(v) : "")}
-            className="w-44"
+            className="w-[16.5rem]"
             options={[
               { value: "", label: "全部账号" },
               ...(accountsQuery.data?.map((a) => ({ value: String(a.id), label: a.accountName })) || []),
