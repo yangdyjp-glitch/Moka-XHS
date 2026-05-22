@@ -55,8 +55,15 @@ app.post("/api/upload", async (req, res) => {
   }
 });
 
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+app.get("/api/health", async (_req, res) => {
+  try {
+    const { db } = await import("./db.js");
+    const { users } = await import("../drizzle/schema.js");
+    const result = await db.select({ id: users.id }).from(users).limit(1);
+    res.json({ status: "ok", db: "connected", userCount: result.length, timestamp: new Date().toISOString() });
+  } catch (e: any) {
+    res.json({ status: "ok", db: "error", error: e.message, cause: e.cause?.message, timestamp: new Date().toISOString() });
+  }
 });
 
 app.use(
