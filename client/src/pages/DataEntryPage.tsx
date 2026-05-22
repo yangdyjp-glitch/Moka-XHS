@@ -68,6 +68,7 @@ export default function DataEntryPage() {
   }, [metricsQuery.data, selectedDay]);
 
   const handleSelectNote = (noteId: number) => {
+    if (noteId === selectedNote) return;
     setSelectedNote(noteId);
     setSelectedDay(1);
     setForm({ impression: "", view: "", likeCount: "", collect: "", commentCount: "", shareCount: "", notes: "" });
