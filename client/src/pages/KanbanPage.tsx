@@ -189,37 +189,32 @@ export default function KanbanPage() {
                   <div
                     key={topic.id}
                     onClick={() => navigate(`/topic/${topic.id}`)}
-                    className="card-surface p-4 cursor-pointer hover:bg-[#F0F4FA] transition-colors"
+                    className="card-surface px-3 py-2.5 cursor-pointer hover:bg-[#F0F4FA] transition-colors"
                   >
-                    <h3 className="text-sm font-medium text-ink line-clamp-2 leading-snug">{topic.title}</h3>
-                    <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-                      <span className="status-pill bg-[#DBEAFE] text-accent">{topic.topicType}</span>
-                      {topic.keywords?.slice(0, 2).map((k) => (
-                        <span key={k} className="status-pill bg-[#EDE9FE] text-[#6D28D9]">{k}</span>
-                      ))}
-                    </div>
-                    <div className="mt-2.5 flex items-center justify-between">
-                      <div className="mono-data text-muted">
-                        {topic.accountName && <span>{topic.accountName}</span>}
-                        {topic.creatorName && <span> · {topic.creatorName}</span>}
-                      </div>
-                      <div className="flex items-center gap-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-sm font-medium text-ink line-clamp-1 leading-snug flex-1">{topic.title}</h3>
+                      <div className="flex items-center gap-1 shrink-0">
                         {getActionButton(topic)}
                         {(isLeader || topic.creatorId === user?.id) && (
                           <button
                             onClick={(e) => handleDelete(topic.id, e)}
-                            className="mono-data text-muted hover:text-[#991B1B] px-1.5 py-1"
+                            className="text-[10px] text-muted hover:text-[#991B1B] px-1"
                           >
                             删除
                           </button>
                         )}
                       </div>
                     </div>
-                    {topic.plannedPublishDate && (
-                      <div className="mt-1.5 mono-data text-muted">
-                        PLAN · {topic.plannedPublishDate}
-                      </div>
-                    )}
+                    <div className="mt-1 flex items-center gap-1 flex-wrap">
+                      <span className="status-pill bg-[#DBEAFE] text-accent">{topic.topicType}</span>
+                      {topic.keywords?.slice(0, 2).map((k) => (
+                        <span key={k} className="status-pill bg-[#EDE9FE] text-[#6D28D9]">{k}</span>
+                      ))}
+                      <span className="text-[10px] text-muted font-mono ml-auto">
+                        {topic.accountName}{topic.creatorName ? ` · ${topic.creatorName}` : ""}
+                        {topic.plannedPublishDate ? ` · ${topic.plannedPublishDate}` : ""}
+                      </span>
+                    </div>
                   </div>
                 ))}
                 {grouped[col.key]?.length === 0 && (
