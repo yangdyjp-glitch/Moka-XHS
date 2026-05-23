@@ -8,11 +8,26 @@ export const noteRouter = router({
   listByTopic: protectedProcedure
     .input(z.object({ topicId: z.number() }))
     .query(async ({ input }) => {
-      return db
+      const noteList = await db
         .select()
         .from(notes)
         .where(eq(notes.topicId, input.topicId))
         .orderBy(desc(notes.publishedAt));
+
+      if (noteList.length === 0) return [];
+
+      const noteIds = noteList.map((n) => n.id);
+      const allMetrics = await db
+        .select()
+        .from(metricSnapshots)
+        .where(inArray(metricSnapshots.noteId, noteIds))
+        .orderBy(desc(metricSnapshots.daysSincePublish));
+
+      return noteList.map((n) => {
+        const metrics = allMetrics.filter((m) => m.noteId === n.id);
+        const latest = metrics[0] || null;
+        return { ...n, metrics, latestMetric: latest };
+      });
     }),
 
   listByAccount: protectedProcedure

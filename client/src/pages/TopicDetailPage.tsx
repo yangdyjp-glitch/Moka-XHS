@@ -82,16 +82,17 @@ export default function TopicDetailPage() {
       {/* Back + Header */}
       <div>
         <button onClick={() => navigate("/")} className="mono-data text-accent hover:text-accent-deep mb-3 inline-block">
-          &larr; BACK TO KANBAN
+          ← 返回看板
         </button>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <h1 className="editorial-heading text-2xl">{topic.title}</h1>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <span className="status-pill bg-accent text-white">
-                {(TOPIC_STATUS as Record<string, string>)[topic.status]}
-              </span>
-              <span className="status-pill bg-[#DBEAFE] text-accent">{topic.topicType}</span>
+              {topic.status !== "published" && (
+                <span className="status-pill bg-accent text-white">
+                  {(TOPIC_STATUS as Record<string, string>)[topic.status]}
+                </span>
+              )}
               <span className="mono-data text-muted">
                 {topic.accountName} · {topic.creatorName}
               </span>
@@ -118,15 +119,15 @@ export default function TopicDetailPage() {
 
       {/* Topic Info */}
       <div className="card-surface p-5 space-y-3">
-        <p className="eyebrow">TOPIC INFO</p>
+        <p className="eyebrow">选题信息</p>
         <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-muted">类型：</span>
+            <span className="text-ink">{topic.topicType}</span>
+          </div>
           <div>
             <span className="text-muted">计划发布：</span>
             <span className="text-ink">{topic.plannedPublishDate || "未设定"}</span>
-          </div>
-          <div>
-            <span className="text-muted">优先级：</span>
-            <span className="text-ink">{topic.priority === "high" ? "高" : topic.priority === "low" ? "低" : "普通"}</span>
           </div>
           <div className="col-span-2">
             <span className="text-muted">关键词：</span>
@@ -134,17 +135,17 @@ export default function TopicDetailPage() {
           </div>
         </div>
         <div className="mono-data text-muted">
-          CREATED · {new Date(topic.createdAt).toLocaleString("zh-CN")}
+          创建于 · {new Date(topic.createdAt).toLocaleString("zh-CN")}
         </div>
       </div>
 
       {/* Notes */}
       <div className="card-surface p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <p className="eyebrow">LINKED NOTES</p>
+          <p className="eyebrow">关联笔记</p>
           {(topic.status === "published" || topic.status === "writing") && (
             <button onClick={() => setShowNoteForm(!showNoteForm)} className="mono-data text-accent hover:text-accent-deep">
-              {showNoteForm ? "取消" : "+ ADD NOTE"}
+              {showNoteForm ? "取消" : "+ 添加笔记"}
             </button>
           )}
         </div>
@@ -161,27 +162,48 @@ export default function TopicDetailPage() {
         )}
 
         {notesQuery.data?.length === 0 && <p className="text-sm text-muted font-serif italic">暂无关联笔记</p>}
-        {notesQuery.data?.map((note) => (
-          <div key={note.id} className="border-b border-hairline pb-3 last:border-0 last:pb-0 text-sm flex gap-3">
-            {note.coverImage && (
-              <img src={note.coverImage} alt="" className="w-20 h-20 object-cover shrink-0" />
-            )}
-            <div className="flex-1 min-w-0">
-              <div className="font-medium text-ink">{note.finalTitle}</div>
-              <div className="flex items-center gap-3 mt-1 mono-data text-muted">
-                <a href={note.xhsNoteUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
-                  VIEW NOTE
-                </a>
-                <span>{new Date(note.publishedAt).toLocaleDateString("zh-CN")}</span>
+        {notesQuery.data?.map((note: any) => (
+          <div key={note.id} className="border-b border-hairline pb-3 last:border-0 last:pb-0 text-sm">
+            <div className="flex gap-3">
+              {note.coverImage && (
+                <img
+                  src={note.coverImage}
+                  alt=""
+                  className="w-20 h-20 object-cover shrink-0 bg-paper-alt"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-ink">{note.finalTitle}</div>
+                <div className="flex items-center gap-3 mt-1 mono-data text-muted">
+                  {note.xhsNoteUrl && (
+                    <a href={note.xhsNoteUrl} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+                      查看笔记
+                    </a>
+                  )}
+                  <span>{new Date(note.publishedAt).toLocaleDateString("zh-CN")}</span>
+                </div>
               </div>
             </div>
+            {/* Metrics */}
+            {note.latestMetric && (
+              <div className="mt-2 flex items-center gap-3 font-mono text-xs text-ink-soft pl-0">
+                <span>{note.latestMetric.impression?.toLocaleString()} <span className="text-muted">曝光</span></span>
+                <span>{note.latestMetric.view?.toLocaleString()} <span className="text-muted">阅读</span></span>
+                <span>{note.latestMetric.likeCount} <span className="text-muted">赞</span></span>
+                <span>{note.latestMetric.collect} <span className="text-muted">藏</span></span>
+                <span>{note.latestMetric.commentCount} <span className="text-muted">评</span></span>
+                <span>{note.latestMetric.shareCount ?? 0} <span className="text-muted">转</span></span>
+                <span className="text-muted ml-auto">T+{note.latestMetric.daysSincePublish}</span>
+              </div>
+            )}
           </div>
         ))}
       </div>
 
       {/* Comments */}
       <div className="card-surface p-5 space-y-3">
-        <p className="eyebrow">DISCUSSION</p>
+        <p className="eyebrow">讨论</p>
         <div className="flex gap-2">
           <input
             value={commentText}

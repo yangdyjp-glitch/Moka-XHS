@@ -80,7 +80,7 @@ export default function PublishDialog({ topicId, topicTitle, onClose, onPublishe
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-6 py-4 border-b border-hairline">
-          <p className="eyebrow mb-0.5">PUBLISH</p>
+          <p className="eyebrow mb-0.5">发布</p>
           <h2 className="font-serif font-bold text-ink text-lg">发布笔记</h2>
           <p className="text-sm text-muted mt-1 truncate">{topicTitle}</p>
         </div>
@@ -91,7 +91,7 @@ export default function PublishDialog({ topicId, topicTitle, onClose, onPublishe
           )}
 
           <div>
-            <label className="eyebrow block mb-1.5">COVER IMAGE</label>
+            <label className="eyebrow block mb-1.5">头图</label>
             <input
               ref={fileInputRef}
               type="file"
@@ -138,7 +138,7 @@ export default function PublishDialog({ topicId, topicTitle, onClose, onPublishe
           </div>
 
           <div>
-            <label className="eyebrow block mb-1.5">NOTE URL *</label>
+            <label className="eyebrow block mb-1.5">笔记链接 *</label>
             <input
               value={noteUrl}
               onChange={(e) => setNoteUrl(e.target.value)}
