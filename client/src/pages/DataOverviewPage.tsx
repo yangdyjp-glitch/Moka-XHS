@@ -56,12 +56,12 @@ export default function DataOverviewPage() {
                 <th className="px-2 py-2.5 text-left eyebrow w-20">账号</th>
                 <th className="px-2 py-2.5 text-center eyebrow w-16">天数</th>
                 <th className="px-2 py-2.5 text-center eyebrow w-20">快照</th>
-                <th className="px-2 py-2.5 text-right eyebrow text-[#2563EB]">曝光</th>
-                <th className="px-2 py-2.5 text-right eyebrow text-[#059669]">阅读</th>
-                <th className="px-2 py-2.5 text-right eyebrow text-[#DC2626]">点赞</th>
-                <th className="px-2 py-2.5 text-right eyebrow text-[#D97706]">收藏</th>
-                <th className="px-2 py-2.5 text-right eyebrow text-[#7C3AED]">评论</th>
-                <th className="px-2 py-2.5 text-right eyebrow text-[#0891B2]">分享</th>
+                <th className="px-2 py-2.5 text-right eyebrow">曝光</th>
+                <th className="px-2 py-2.5 text-right eyebrow">阅读</th>
+                <th className="px-2 py-2.5 text-right eyebrow">点赞</th>
+                <th className="px-2 py-2.5 text-right eyebrow">收藏</th>
+                <th className="px-2 py-2.5 text-right eyebrow">评论</th>
+                <th className="px-2 py-2.5 text-right eyebrow">分享</th>
                 <th className="px-2 py-2.5 text-right eyebrow">互动率</th>
                 <th className="px-2 py-2.5 text-center eyebrow pr-3 w-16">链接</th>
               </tr>
@@ -113,12 +113,12 @@ export default function DataOverviewPage() {
                     </td>
                     {latest ? (
                       <>
-                        <td className="px-2 py-2.5 text-right font-mono">{latest.impression.toLocaleString()}</td>
-                        <td className="px-2 py-2.5 text-right font-mono">{latest.view.toLocaleString()}</td>
-                        <td className="px-2 py-2.5 text-right font-mono">{latest.likeCount.toLocaleString()}</td>
-                        <td className="px-2 py-2.5 text-right font-mono">{latest.collect.toLocaleString()}</td>
-                        <td className="px-2 py-2.5 text-right font-mono">{latest.commentCount.toLocaleString()}</td>
-                        <td className="px-2 py-2.5 text-right font-mono">{(latest.shareCount ?? 0).toLocaleString()}</td>
+                        <td className="px-2 py-2.5 text-right font-mono text-[#2563EB]">{latest.impression.toLocaleString()}</td>
+                        <td className="px-2 py-2.5 text-right font-mono text-[#059669]">{latest.view.toLocaleString()}</td>
+                        <td className="px-2 py-2.5 text-right font-mono text-[#DC2626]">{latest.likeCount.toLocaleString()}</td>
+                        <td className="px-2 py-2.5 text-right font-mono text-[#D97706]">{latest.collect.toLocaleString()}</td>
+                        <td className="px-2 py-2.5 text-right font-mono text-[#7C3AED]">{latest.commentCount.toLocaleString()}</td>
+                        <td className="px-2 py-2.5 text-right font-mono text-[#0891B2]">{(latest.shareCount ?? 0).toLocaleString()}</td>
                         <td className="px-2 py-2.5 text-right font-mono text-accent font-medium">
                           {engagement}%
                           {hasMultiple && <span className="text-muted text-[9px] ml-1">{isExpanded ? "▲" : "▼"}</span>}
@@ -160,11 +160,11 @@ export default function DataOverviewPage() {
                     return (
                       <div key={m.daysSincePublish} className="flex items-center gap-3">
                         <span className="font-mono text-ink-soft font-medium">T+{m.daysSincePublish}</span>
-                        <span>{m.impression.toLocaleString()} <span className="text-[#2563EB]">曝光</span></span>
-                        <span>{m.view.toLocaleString()} <span className="text-[#059669]">阅读</span></span>
-                        <span>{m.likeCount} <span className="text-[#DC2626]">赞</span></span>
-                        <span>{m.collect} <span className="text-[#D97706]">藏</span></span>
-                        <span>{m.commentCount} <span className="text-[#7C3AED]">评</span></span>
+                        <span><span className="text-[#2563EB]">{m.impression.toLocaleString()}</span> <span className="text-muted">曝光</span></span>
+                        <span><span className="text-[#059669]">{m.view.toLocaleString()}</span> <span className="text-muted">阅读</span></span>
+                        <span><span className="text-[#DC2626]">{m.likeCount}</span> <span className="text-muted">赞</span></span>
+                        <span><span className="text-[#D97706]">{m.collect}</span> <span className="text-muted">藏</span></span>
+                        <span><span className="text-[#7C3AED]">{m.commentCount}</span> <span className="text-muted">评</span></span>
                         <span className="text-accent font-mono font-medium">{eng}%</span>
                       </div>
                     );

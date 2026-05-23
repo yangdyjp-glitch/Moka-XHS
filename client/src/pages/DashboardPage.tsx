@@ -34,12 +34,12 @@ function NoteRankRow({ n, rank }: { n: any; rank: number }) {
         </div>
       </div>
       <div className="flex items-center gap-3 shrink-0 font-mono text-xs">
-        <span>{n.impression.toLocaleString()} <span className="text-[#2563EB]">曝光</span></span>
-        <span>{n.view.toLocaleString()} <span className="text-[#059669]">阅读</span></span>
-        <span>{n.likeCount} <span className="text-[#DC2626]">赞</span></span>
-        <span>{n.collect} <span className="text-[#D97706]">藏</span></span>
-        <span>{n.commentCount} <span className="text-[#7C3AED]">评</span></span>
-        <span>{(n.shareCount ?? 0)} <span className="text-[#0891B2]">转</span></span>
+        <span><span className="text-[#2563EB]">{n.impression.toLocaleString()}</span> <span className="text-muted">曝光</span></span>
+        <span><span className="text-[#059669]">{n.view.toLocaleString()}</span> <span className="text-muted">阅读</span></span>
+        <span><span className="text-[#DC2626]">{n.likeCount}</span> <span className="text-muted">赞</span></span>
+        <span><span className="text-[#D97706]">{n.collect}</span> <span className="text-muted">藏</span></span>
+        <span><span className="text-[#7C3AED]">{n.commentCount}</span> <span className="text-muted">评</span></span>
+        <span><span className="text-[#0891B2]">{(n.shareCount ?? 0)}</span> <span className="text-muted">转</span></span>
       </div>
       {n.xhsNoteUrl && (
         <a href={n.xhsNoteUrl} target="_blank" rel="noopener noreferrer"
