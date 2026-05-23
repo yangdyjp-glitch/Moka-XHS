@@ -7,10 +7,10 @@ import TopicCreateDialog from "../components/topic/TopicCreateDialog.js";
 import PublishDialog from "../components/topic/PublishDialog.js";
 
 const KANBAN_COLUMNS = [
-  { key: "pending_review", label: "待审批", eyebrow: "PENDING" },
-  { key: "approved", label: "已通过", eyebrow: "APPROVED" },
-  { key: "writing", label: "写作中", eyebrow: "WRITING" },
-  { key: "published", label: "已发布", eyebrow: "PUBLISHED" },
+  { key: "pending_review", label: "待审批", eyebrow: "待审批" },
+  { key: "approved", label: "已通过", eyebrow: "已通过" },
+  { key: "writing", label: "写作中", eyebrow: "写作中" },
+  { key: "published", label: "已发布", eyebrow: "已发布" },
 ];
 
 function AccountFilter({ accounts, value, onChange }: {
