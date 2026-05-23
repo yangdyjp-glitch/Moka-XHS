@@ -156,9 +156,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         {sidebarContent}
       </aside>
 
-      {/* Desktop sidebar — static, scrolls with page */}
+      {/* Desktop sidebar — sticky, stays visible while scrolling */}
       <aside
-        className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0F172A] text-[#94A3B8] min-h-screen"
+        className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0F172A] text-[#94A3B8] sticky top-0 h-screen overflow-y-auto"
       >
         {sidebarContent}
       </aside>
