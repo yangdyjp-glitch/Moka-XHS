@@ -33,7 +33,7 @@ export default function Dropdown({ value, onChange, options, placeholder, classN
         type="button"
         onClick={() => !disabled && setOpen(!open)}
         disabled={disabled}
-        className={`w-full border border-hairline bg-card px-3 py-2 text-sm text-left flex items-center justify-between gap-2 transition-colors ${
+        className={`w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm text-left flex items-center justify-between gap-2 transition-colors ${
           disabled ? "opacity-50 cursor-not-allowed" : "hover:border-accent"
         } ${open ? "border-accent" : ""}`}
       >
