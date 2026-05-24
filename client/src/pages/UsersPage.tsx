@@ -75,29 +75,29 @@ export default function UsersPage() {
 
       {showForm && (
         <form onSubmit={handleCreate} className="card-surface p-5 mb-5 space-y-4">
-          <p className="eyebrow mb-3">NEW USER</p>
+          <p className="eyebrow mb-3">新建用户</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="eyebrow block mb-1.5">NAME</label>
+              <label className="eyebrow block mb-1.5">姓名</label>
               <input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 required
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">EMAIL</label>
+              <label className="eyebrow block mb-1.5">邮箱</label>
               <input
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 required
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">ROLE</label>
+              <label className="eyebrow block mb-1.5">角色</label>
               <Dropdown
                 value={form.role}
                 onChange={(v) => setForm({ ...form, role: v as any })}
@@ -105,7 +105,7 @@ export default function UsersPage() {
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">PASSWORD</label>
+              <label className="eyebrow block mb-1.5">初始密码</label>
               <input
                 type="text"
                 value={form.initialPassword}
@@ -125,29 +125,29 @@ export default function UsersPage() {
 
       {editing && (
         <form onSubmit={handleUpdate} className="card-surface p-5 mb-5 space-y-4">
-          <p className="eyebrow mb-3">EDIT USER</p>
+          <p className="eyebrow mb-3">编辑用户</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="eyebrow block mb-1.5">NAME</label>
+              <label className="eyebrow block mb-1.5">姓名</label>
               <input
                 value={editing.name}
                 onChange={(e) => setEditing({ ...editing, name: e.target.value })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 required
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">EMAIL</label>
+              <label className="eyebrow block mb-1.5">邮箱</label>
               <input
                 type="email"
                 value={editing.email}
                 onChange={(e) => setEditing({ ...editing, email: e.target.value })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 required
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">ROLE</label>
+              <label className="eyebrow block mb-1.5">角色</label>
               <Dropdown
                 value={editing.role}
                 onChange={(v) => setEditing({ ...editing, role: v as EditForm["role"] })}
@@ -155,7 +155,7 @@ export default function UsersPage() {
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">STATUS</label>
+              <label className="eyebrow block mb-1.5">状态</label>
               <Dropdown
                 value={editing.isActive ? "true" : "false"}
                 onChange={(v) => setEditing({ ...editing, isActive: v === "true" })}
@@ -177,12 +177,12 @@ export default function UsersPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-ink">
-              <th className="px-4 py-3 text-left eyebrow">NAME</th>
-              <th className="px-4 py-3 text-left eyebrow">EMAIL</th>
-              <th className="px-4 py-3 text-left eyebrow">ROLE</th>
-              <th className="px-4 py-3 text-left eyebrow">STATUS</th>
-              <th className="px-4 py-3 text-left eyebrow">LAST LOGIN</th>
-              <th className="px-4 py-3 text-right eyebrow">ACTIONS</th>
+              <th className="px-4 py-3 text-left eyebrow">姓名</th>
+              <th className="px-4 py-3 text-left eyebrow">邮箱</th>
+              <th className="px-4 py-3 text-left eyebrow">角色</th>
+              <th className="px-4 py-3 text-left eyebrow">状态</th>
+              <th className="px-4 py-3 text-left eyebrow">最近登录</th>
+              <th className="px-4 py-3 text-right eyebrow">操作</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-hairline">
@@ -197,7 +197,7 @@ export default function UsersPage() {
                 </td>
                 <td className="px-4 py-3">
                   <span className={`status-pill ${u.isActive ? "status-ok" : "bg-[#FEE2E2] text-[#991B1B]"}`}>
-                    {u.isActive ? "ACTIVE" : "DISABLED"}
+                    {u.isActive ? "启用" : "禁用"}
                   </span>
                 </td>
                 <td className="px-4 py-3 mono-data text-muted">
