@@ -6,7 +6,7 @@ import Dropdown from "../components/ui/Dropdown.js";
 const PRESET_COLORS = [
   "#E74C3C", "#F39C12", "#F1C40F", "#2ECC71",
   "#1ABC9C", "#3498DB", "#1F3864", "#9B59B6",
-  "#E91E63", "#FF5722", "#607D8B", "#34495E",
+  "#607D8B", "#34495E", "#000000",
 ];
 
 type EditForm = {
@@ -141,20 +141,20 @@ export default function AccountsPage() {
 
       {showForm && (
         <form onSubmit={handleCreate} className="card-surface p-5 mb-5 space-y-4">
-          <p className="eyebrow mb-3">NEW ACCOUNT</p>
+          <p className="eyebrow mb-3">新建账号</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="eyebrow block mb-1.5">NAME</label>
+              <label className="eyebrow block mb-1.5">账号名称</label>
               <input
                 value={form.accountName}
                 onChange={(e) => setForm({ ...form, accountName: e.target.value })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 placeholder="如: 罗老师｜日本经济经营读研"
                 required
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">OWNER</label>
+              <label className="eyebrow block mb-1.5">负责人</label>
               <Dropdown
                 value={String(form.ownerId)}
                 onChange={(v) => setForm({ ...form, ownerId: Number(v) })}
@@ -166,7 +166,7 @@ export default function AccountsPage() {
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">LAYER</label>
+              <label className="eyebrow block mb-1.5">层级</label>
               <Dropdown
                 value={form.layer}
                 onChange={(v) => setForm({ ...form, layer: v as any })}
@@ -174,17 +174,16 @@ export default function AccountsPage() {
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">WEEKLY TARGET</label>
+              <label className="eyebrow block mb-1.5">周目标</label>
               <input
-                type="number"
                 value={form.weeklyTarget}
-                onChange={(e) => setForm({ ...form, weeklyTarget: Number(e.target.value) })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
+                onChange={(e) => setForm({ ...form, weeklyTarget: Number(e.target.value) || 0 })}
+                className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
                 min={1}
               />
             </div>
             <div className="md:col-span-2">
-              <label className="eyebrow block mb-1.5">COLOR</label>
+              <label className="eyebrow block mb-1.5">颜色</label>
               <ColorPicker value={form.mainColor} onChange={(c) => setForm({ ...form, mainColor: c })} />
             </div>
           </div>
@@ -197,19 +196,19 @@ export default function AccountsPage() {
 
       {editing && (
         <form onSubmit={handleUpdate} className="card-surface p-5 mb-5 space-y-4">
-          <p className="eyebrow mb-3">EDIT ACCOUNT</p>
+          <p className="eyebrow mb-3">编辑账号</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="eyebrow block mb-1.5">NAME</label>
+              <label className="eyebrow block mb-1.5">账号名称</label>
               <input
                 value={editing.accountName}
                 onChange={(e) => setEditing({ ...editing, accountName: e.target.value })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 required
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">OWNER</label>
+              <label className="eyebrow block mb-1.5">负责人</label>
               <Dropdown
                 value={String(editing.ownerId)}
                 onChange={(v) => setEditing({ ...editing, ownerId: Number(v) })}
@@ -217,7 +216,7 @@ export default function AccountsPage() {
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">LAYER</label>
+              <label className="eyebrow block mb-1.5">层级</label>
               <Dropdown
                 value={editing.layer}
                 onChange={(v) => setEditing({ ...editing, layer: v as EditForm["layer"] })}
@@ -225,26 +224,25 @@ export default function AccountsPage() {
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">WEEKLY TARGET</label>
+              <label className="eyebrow block mb-1.5">周目标</label>
               <input
-                type="number"
                 value={editing.weeklyTarget}
-                onChange={(e) => setEditing({ ...editing, weeklyTarget: Number(e.target.value) })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
+                onChange={(e) => setEditing({ ...editing, weeklyTarget: Number(e.target.value) || 0 })}
+                className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
                 min={1}
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">XHS URL</label>
+              <label className="eyebrow block mb-1.5">小红书主页</label>
               <input
                 value={editing.xhsAccountUrl}
                 onChange={(e) => setEditing({ ...editing, xhsAccountUrl: e.target.value })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
+                className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
                 placeholder="小红书主页链接"
               />
             </div>
             <div>
-              <label className="eyebrow block mb-1.5">STATUS</label>
+              <label className="eyebrow block mb-1.5">状态</label>
               <Dropdown
                 value={editing.status}
                 onChange={(v) => setEditing({ ...editing, status: v as EditForm["status"] })}
@@ -256,7 +254,7 @@ export default function AccountsPage() {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="eyebrow block mb-1.5">COLOR</label>
+              <label className="eyebrow block mb-1.5">颜色</label>
               <ColorPicker value={editing.mainColor} onChange={(c) => setEditing({ ...editing, mainColor: c })} />
             </div>
           </div>
@@ -271,12 +269,12 @@ export default function AccountsPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-ink">
-              <th className="px-4 py-3 text-left eyebrow">NAME</th>
-              <th className="px-4 py-3 text-left eyebrow">OWNER</th>
-              <th className="px-4 py-3 text-left eyebrow">LAYER</th>
-              <th className="px-4 py-3 text-left eyebrow">TARGET</th>
-              <th className="px-4 py-3 text-left eyebrow">STATUS</th>
-              <th className="px-4 py-3 text-right eyebrow">ACTIONS</th>
+              <th className="px-4 py-3 text-left eyebrow">账号名称</th>
+              <th className="px-4 py-3 text-left eyebrow">负责人</th>
+              <th className="px-4 py-3 text-left eyebrow">层级</th>
+              <th className="px-4 py-3 text-left eyebrow">周目标</th>
+              <th className="px-4 py-3 text-left eyebrow">状态</th>
+              <th className="px-4 py-3 text-right eyebrow">操作</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-hairline">
@@ -298,7 +296,7 @@ export default function AccountsPage() {
                 <td className="px-4 py-3 font-mono text-ink-soft">{acc.weeklyTarget}篇/周</td>
                 <td className="px-4 py-3">
                   <span className={`status-pill ${acc.status === "active" ? "status-ok" : "bg-paper-alt text-muted"}`}>
-                    {acc.status === "active" ? "ACTIVE" : acc.status === "paused" ? "PAUSED" : "ARCHIVED"}
+                    {acc.status === "active" ? "启用" : acc.status === "paused" ? "暂停" : "归档"}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
