@@ -57,7 +57,7 @@ function AppRoutes() {
 
 export default function App() {
   const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
+    defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false, staleTime: 30 * 60 * 1000 } },
   }));
   const [trpcClient] = useState(() => createTRPCClient());
 

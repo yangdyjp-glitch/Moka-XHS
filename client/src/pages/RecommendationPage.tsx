@@ -125,25 +125,16 @@ export default function RecommendationPage() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <p className="eyebrow">近期事件</p>
-            {urgentEvents.length > 0 && !showAllEvents && (
-              <span className="text-[11px] font-mono text-muted">10天内 {urgentEvents.length} 项</span>
-            )}
-            {showAllEvents && (
-              <span className="text-[11px] font-mono text-muted">共 {upcomingEvents.length} 项</span>
-            )}
+            <span className="text-[11px] font-mono text-muted">
+              {showAllEvents ? `共 ${upcomingEvents.length} 项` : `10天内 ${urgentEvents.length} 项`}
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setShowAllEvents(!showAllEvents)}
-              className="px-3 py-1.5 text-sm text-muted hover:text-ink transition-colors font-mono">
-              {showAllEvents ? "收起 ▲" : `展开全部 (${upcomingEvents.length}) ▼`}
-            </button>
-            <button onClick={() => setShowAddEvent(!showAddEvent)}
-              className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
-                showAddEvent ? "bg-paper-alt text-muted hover:text-ink" : "bg-ink text-card hover:bg-ink-soft"
-              }`}>
-              {showAddEvent ? "取消" : "+ 添加事件"}
-            </button>
-          </div>
+          <button onClick={() => setShowAddEvent(!showAddEvent)}
+            className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+              showAddEvent ? "bg-paper-alt text-muted hover:text-ink" : "bg-ink text-card hover:bg-ink-soft"
+            }`}>
+            {showAddEvent ? "取消" : "+ 添加事件"}
+          </button>
         </div>
 
         {showAddEvent && (
@@ -204,7 +195,17 @@ export default function RecommendationPage() {
             ))}
           </div>
         )}
-        <p className="mono-data text-muted mt-3">事件会自动纳入 AI 推荐上下文</p>
+        <div className="flex items-center justify-between mt-3">
+          <p className="mono-data text-muted">事件会自动纳入 AI 推荐上下文</p>
+          <button onClick={() => setShowAllEvents(!showAllEvents)}
+            className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
+              showAllEvents
+                ? "bg-paper-alt text-ink hover:bg-hairline border border-hairline"
+                : "bg-accent text-white hover:bg-accent-deep"
+            }`}>
+            {showAllEvents ? "收起 ▲" : `查看全部事件 (${upcomingEvents.length}) ▼`}
+          </button>
+        </div>
       </div>
 
       {recommendMutation.isError && (
