@@ -53,24 +53,23 @@ export default function PublishDialog({ topicId, topicTitle, onClose, onPublishe
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (publishMutation.isPending) return;
 
     if (!noteUrl.trim()) {
       setError("请填写笔记链接");
       return;
     }
 
-    try {
-      await publishMutation.mutateAsync({
-        topicId,
-        xhsNoteUrl: noteUrl.trim(),
-        coverImage: coverUrl || undefined,
-      });
-    } catch (err: any) {
-      setError(err.message || "发布失败");
-    }
+    publishMutation.mutate({
+      topicId,
+      xhsNoteUrl: noteUrl.trim(),
+      coverImage: coverUrl || undefined,
+    }, {
+      onError: (err) => setError(err.message || "发布失败"),
+    });
   };
 
   return (

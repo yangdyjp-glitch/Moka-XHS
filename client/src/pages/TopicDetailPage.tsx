@@ -38,32 +38,33 @@ export default function TopicDetailPage() {
     statusMutation.mutate({ id: topicId, newStatus });
   };
 
-  const handleAddNote = async (e: React.FormEvent) => {
+  const handleAddNote = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!noteForm.finalTitle || !noteForm.xhsNoteUrl || !noteForm.publishedAt) return;
-    await createNoteMutation.mutateAsync({ topicId, ...noteForm });
-    setNoteForm({ finalTitle: "", xhsNoteUrl: "", publishedAt: "" });
-    setShowNoteForm(false);
+    if (!noteForm.finalTitle || !noteForm.xhsNoteUrl || !noteForm.publishedAt || createNoteMutation.isPending) return;
+    createNoteMutation.mutate({ topicId, ...noteForm }, {
+      onSuccess: () => { setNoteForm({ finalTitle: "", xhsNoteUrl: "", publishedAt: "" }); setShowNoteForm(false); },
+    });
   };
 
-  const handleAddComment = async () => {
-    if (!commentText.trim()) return;
-    await createCommentMutation.mutateAsync({ topicId, content: commentText });
-    setCommentText("");
+  const handleAddComment = () => {
+    if (!commentText.trim() || createCommentMutation.isPending) return;
+    createCommentMutation.mutate({ topicId, content: commentText }, {
+      onSuccess: () => setCommentText(""),
+    });
   };
 
   const getStatusAction = () => {
     if (topic.status === "pending_review" && isLeader) {
       return (
-        <button onClick={() => handleStatusChange("approved")} className="bg-ink text-card px-4 py-1.5 text-sm rounded-full hover:bg-ink-soft">
-          审批通过
+        <button onClick={() => handleStatusChange("approved")} disabled={statusMutation.isPending} className="bg-ink text-card px-4 py-1.5 text-sm rounded-full hover:bg-ink-soft disabled:opacity-50">
+          {statusMutation.isPending ? "处理中..." : "审批通过"}
         </button>
       );
     }
     if (topic.status === "approved" && topic.creatorId === user?.id) {
       return (
-        <button onClick={() => handleStatusChange("writing")} className="bg-accent text-white px-4 py-1.5 text-sm rounded-full hover:bg-accent-deep">
-          开始写作
+        <button onClick={() => handleStatusChange("writing")} disabled={statusMutation.isPending} className="bg-accent text-white px-4 py-1.5 text-sm rounded-full hover:bg-accent-deep disabled:opacity-50">
+          {statusMutation.isPending ? "处理中..." : "开始写作"}
         </button>
       );
     }

@@ -13,8 +13,16 @@ type EditForm = {
 
 export default function UsersPage() {
   const { data: usersList, refetch } = trpc.auth.listUsers.useQuery();
-  const createUser = trpc.auth.createUser.useMutation({ onSuccess: () => refetch() });
-  const updateUser = trpc.auth.updateUser.useMutation({ onSuccess: () => { refetch(); setEditing(null); } });
+  const createUser = trpc.auth.createUser.useMutation({
+    onSuccess: () => {
+      refetch();
+      setShowForm(false);
+      setForm({ name: "", email: "", role: "teacher", initialPassword: "" });
+    },
+  });
+  const updateUser = trpc.auth.updateUser.useMutation({
+    onSuccess: () => { refetch(); setEditing(null); },
+  });
   const deleteUser = trpc.auth.deleteUser.useMutation({ onSuccess: () => refetch() });
 
   const [showForm, setShowForm] = useState(false);
@@ -26,11 +34,10 @@ export default function UsersPage() {
     initialPassword: "",
   });
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    await createUser.mutateAsync(form);
-    setShowForm(false);
-    setForm({ name: "", email: "", role: "teacher", initialPassword: "" });
+    if (createUser.isPending) return;
+    createUser.mutate(form);
   };
 
   const handleEdit = (u: NonNullable<typeof usersList>[0]) => {
@@ -43,17 +50,20 @@ export default function UsersPage() {
     });
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editing) return;
-    await updateUser.mutateAsync(editing);
+    if (!editing || updateUser.isPending) return;
+    updateUser.mutate(editing);
   };
 
   const handleDelete = (id: number, name: string) => {
+    if (deleteUser.isPending) return;
     if (window.confirm(`确定要删除用户「${name}」吗？此操作不可撤销。`)) {
       deleteUser.mutate({ id });
     }
   };
+
+  const isBusy = createUser.isPending || updateUser.isPending || deleteUser.isPending;
 
   return (
     <div>
@@ -65,7 +75,8 @@ export default function UsersPage() {
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="bg-ink text-card px-4 py-1.5 text-sm font-medium rounded-full hover:bg-ink-soft transition-colors"
+            disabled={isBusy}
+            className="bg-ink text-card px-4 py-1.5 text-sm font-medium rounded-full hover:bg-ink-soft transition-colors disabled:opacity-50"
           >
             {showForm ? "取消" : "+ 创建用户"}
           </button>
@@ -84,6 +95,7 @@ export default function UsersPage() {
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 required
+                disabled={createUser.isPending}
               />
             </div>
             <div>
@@ -94,6 +106,7 @@ export default function UsersPage() {
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 required
+                disabled={createUser.isPending}
               />
             </div>
             <div>
@@ -102,6 +115,7 @@ export default function UsersPage() {
                 value={form.role}
                 onChange={(v) => setForm({ ...form, role: v as any })}
                 options={Object.entries(USER_ROLE).map(([k, v]) => ({ value: k, label: v }))}
+                disabled={createUser.isPending}
               />
             </div>
             <div>
@@ -110,15 +124,21 @@ export default function UsersPage() {
                 type="text"
                 value={form.initialPassword}
                 onChange={(e) => setForm({ ...form, initialPassword: e.target.value })}
-                className="w-full border border-hairline bg-paper px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
+                className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
                 placeholder="至少6位"
                 required
+                disabled={createUser.isPending}
               />
             </div>
           </div>
+          {createUser.isError && (
+            <p className="text-sm text-[#991B1B]">{createUser.error?.message || "创建失败"}</p>
+          )}
           <div className="flex gap-3 justify-end pt-1">
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-1.5 text-sm text-muted hover:text-ink transition-colors">取消</button>
-            <button type="submit" className="px-5 py-1.5 bg-ink text-card text-sm rounded-full hover:bg-ink-soft transition-colors">创建</button>
+            <button type="button" onClick={() => setShowForm(false)} disabled={createUser.isPending} className="px-4 py-1.5 text-sm text-muted hover:text-ink transition-colors disabled:opacity-50">取消</button>
+            <button type="submit" disabled={createUser.isPending} className="px-5 py-1.5 bg-ink text-card text-sm rounded-full hover:bg-ink-soft transition-colors disabled:opacity-50">
+              {createUser.isPending ? "创建中..." : "创建"}
+            </button>
           </div>
         </form>
       )}
@@ -134,6 +154,7 @@ export default function UsersPage() {
                 onChange={(e) => setEditing({ ...editing, name: e.target.value })}
                 className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 required
+                disabled={updateUser.isPending}
               />
             </div>
             <div>
@@ -144,6 +165,7 @@ export default function UsersPage() {
                 onChange={(e) => setEditing({ ...editing, email: e.target.value })}
                 className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 required
+                disabled={updateUser.isPending}
               />
             </div>
             <div>
@@ -152,6 +174,7 @@ export default function UsersPage() {
                 value={editing.role}
                 onChange={(v) => setEditing({ ...editing, role: v as EditForm["role"] })}
                 options={Object.entries(USER_ROLE).map(([k, v]) => ({ value: k, label: v }))}
+                disabled={updateUser.isPending}
               />
             </div>
             <div>
@@ -163,12 +186,18 @@ export default function UsersPage() {
                   { value: "true", label: "启用" },
                   { value: "false", label: "禁用" },
                 ]}
+                disabled={updateUser.isPending}
               />
             </div>
           </div>
+          {updateUser.isError && (
+            <p className="text-sm text-[#991B1B]">{updateUser.error?.message || "保存失败"}</p>
+          )}
           <div className="flex gap-3 justify-end pt-1">
-            <button type="button" onClick={() => setEditing(null)} className="px-4 py-1.5 text-sm text-muted hover:text-ink transition-colors">取消</button>
-            <button type="submit" className="px-5 py-1.5 bg-ink text-card text-sm rounded-full hover:bg-ink-soft transition-colors">保存</button>
+            <button type="button" onClick={() => setEditing(null)} disabled={updateUser.isPending} className="px-4 py-1.5 text-sm text-muted hover:text-ink transition-colors disabled:opacity-50">取消</button>
+            <button type="submit" disabled={updateUser.isPending} className="px-5 py-1.5 bg-ink text-card text-sm rounded-full hover:bg-ink-soft transition-colors disabled:opacity-50">
+              {updateUser.isPending ? "保存中..." : "保存"}
+            </button>
           </div>
         </form>
       )}
@@ -206,15 +235,17 @@ export default function UsersPage() {
                 <td className="px-4 py-3 text-right">
                   <button
                     onClick={() => handleEdit(u)}
-                    className="text-xs text-accent hover:text-accent-deep mr-3"
+                    disabled={isBusy}
+                    className="text-xs text-accent hover:text-accent-deep mr-3 disabled:opacity-50"
                   >
                     编辑
                   </button>
                   <button
                     onClick={() => handleDelete(u.id, u.name)}
-                    className="text-xs text-muted hover:text-[#991B1B]"
+                    disabled={isBusy}
+                    className="text-xs text-muted hover:text-[#991B1B] disabled:opacity-50"
                   >
-                    删除
+                    {deleteUser.isPending ? "删除中..." : "删除"}
                   </button>
                 </td>
               </tr>

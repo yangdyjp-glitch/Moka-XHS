@@ -20,7 +20,7 @@ type EditForm = {
   status: "active" | "paused" | "archived";
 };
 
-function ColorPicker({ value, onChange }: { value: string; onChange: (c: string) => void }) {
+function ColorPicker({ value, onChange, disabled }: { value: string; onChange: (c: string) => void; disabled?: boolean }) {
   const [useCustom, setUseCustom] = useState(!PRESET_COLORS.includes(value));
 
   return (
@@ -30,7 +30,8 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
           key={c}
           type="button"
           onClick={() => { onChange(c); setUseCustom(false); }}
-          className="w-8 h-8 rounded-full border-2 transition-transform hover:scale-110"
+          disabled={disabled}
+          className="w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 disabled:opacity-50"
           style={{
             backgroundColor: c,
             borderColor: value === c && !useCustom ? "#0F172A" : "transparent",
@@ -40,7 +41,8 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
       <button
         type="button"
         onClick={() => setUseCustom(true)}
-        className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110 ${
+        disabled={disabled}
+        className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110 disabled:opacity-50 ${
           useCustom ? "border-ink bg-paper" : "border-hairline bg-paper"
         }`}
         title="其他颜色"
@@ -54,6 +56,7 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
           type="color"
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
           className="w-9 h-9 border border-hairline cursor-pointer ml-1"
         />
       )}
@@ -69,8 +72,16 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
 export default function AccountsPage() {
   const { data: accounts, refetch } = trpc.account.list.useQuery();
   const { data: usersList } = trpc.auth.listUsers.useQuery();
-  const createAccount = trpc.account.create.useMutation({ onSuccess: () => refetch() });
-  const updateAccount = trpc.account.update.useMutation({ onSuccess: () => { refetch(); setEditing(null); } });
+  const createAccount = trpc.account.create.useMutation({
+    onSuccess: () => {
+      refetch();
+      setShowForm(false);
+      setForm({ accountName: "", ownerId: 0, layer: "midstream", mainColor: "#1F3864", weeklyTarget: 3 });
+    },
+  });
+  const updateAccount = trpc.account.update.useMutation({
+    onSuccess: () => { refetch(); setEditing(null); },
+  });
   const deleteAccount = trpc.account.delete.useMutation({
     onSuccess: () => refetch(),
     onError: (err) => window.alert(err.message),
@@ -87,13 +98,10 @@ export default function AccountsPage() {
     weeklyTarget: 3,
   });
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.ownerId) return;
-    await createAccount.mutateAsync(form);
-    setShowForm(false);
-    setForm({ accountName: "", ownerId: 0, layer: "midstream", mainColor: "#1F3864", weeklyTarget: 3 });
-    setUseCustomColor(false);
+    if (!form.ownerId || createAccount.isPending) return;
+    createAccount.mutate(form);
   };
 
   const handleEdit = (acc: NonNullable<typeof accounts>[0]) => {
@@ -109,17 +117,20 @@ export default function AccountsPage() {
     });
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editing) return;
-    await updateAccount.mutateAsync(editing);
+    if (!editing || updateAccount.isPending) return;
+    updateAccount.mutate(editing);
   };
 
   const handleDelete = (id: number, name: string) => {
+    if (deleteAccount.isPending) return;
     if (window.confirm(`确定要删除账号「${name}」吗？此操作不可撤销。`)) {
       deleteAccount.mutate({ id });
     }
   };
+
+  const isBusy = createAccount.isPending || updateAccount.isPending || deleteAccount.isPending;
 
   return (
     <div>
@@ -131,7 +142,8 @@ export default function AccountsPage() {
           </div>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="bg-ink text-card px-4 py-1.5 text-sm font-medium rounded-full hover:bg-ink-soft transition-colors"
+            disabled={isBusy}
+            className="bg-ink text-card px-4 py-1.5 text-sm font-medium rounded-full hover:bg-ink-soft transition-colors disabled:opacity-50"
           >
             {showForm ? "取消" : "+ 新建账号"}
           </button>
@@ -151,6 +163,7 @@ export default function AccountsPage() {
                 className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 placeholder="如: 罗老师｜日本经济经营读研"
                 required
+                disabled={createAccount.isPending}
               />
             </div>
             <div>
@@ -163,6 +176,7 @@ export default function AccountsPage() {
                   { value: "0", label: "请选择" },
                   ...(usersList?.map((u) => ({ value: String(u.id), label: u.name })) || []),
                 ]}
+                disabled={createAccount.isPending}
               />
             </div>
             <div>
@@ -171,6 +185,7 @@ export default function AccountsPage() {
                 value={form.layer}
                 onChange={(v) => setForm({ ...form, layer: v as any })}
                 options={Object.entries(ACCOUNT_LAYER).map(([k, v]) => ({ value: k, label: v }))}
+                disabled={createAccount.isPending}
               />
             </div>
             <div>
@@ -180,16 +195,22 @@ export default function AccountsPage() {
                 onChange={(e) => setForm({ ...form, weeklyTarget: Number(e.target.value) || 0 })}
                 className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
                 min={1}
+                disabled={createAccount.isPending}
               />
             </div>
             <div className="md:col-span-2">
               <label className="eyebrow block mb-1.5">颜色</label>
-              <ColorPicker value={form.mainColor} onChange={(c) => setForm({ ...form, mainColor: c })} />
+              <ColorPicker value={form.mainColor} onChange={(c) => setForm({ ...form, mainColor: c })} disabled={createAccount.isPending} />
             </div>
           </div>
+          {createAccount.isError && (
+            <p className="text-sm text-[#991B1B]">{createAccount.error?.message || "创建失败"}</p>
+          )}
           <div className="flex gap-3 justify-end pt-1">
-            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-1.5 text-sm text-muted hover:text-ink transition-colors">取消</button>
-            <button type="submit" className="px-5 py-1.5 bg-ink text-card text-sm rounded-full hover:bg-ink-soft transition-colors">创建</button>
+            <button type="button" onClick={() => setShowForm(false)} disabled={createAccount.isPending} className="px-4 py-1.5 text-sm text-muted hover:text-ink transition-colors disabled:opacity-50">取消</button>
+            <button type="submit" disabled={createAccount.isPending} className="px-5 py-1.5 bg-ink text-card text-sm rounded-full hover:bg-ink-soft transition-colors disabled:opacity-50">
+              {createAccount.isPending ? "创建中..." : "创建"}
+            </button>
           </div>
         </form>
       )}
@@ -205,6 +226,7 @@ export default function AccountsPage() {
                 onChange={(e) => setEditing({ ...editing, accountName: e.target.value })}
                 className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm focus:outline-none focus:border-accent transition-colors"
                 required
+                disabled={updateAccount.isPending}
               />
             </div>
             <div>
@@ -213,6 +235,7 @@ export default function AccountsPage() {
                 value={String(editing.ownerId)}
                 onChange={(v) => setEditing({ ...editing, ownerId: Number(v) })}
                 options={usersList?.map((u) => ({ value: String(u.id), label: u.name })) || []}
+                disabled={updateAccount.isPending}
               />
             </div>
             <div>
@@ -221,6 +244,7 @@ export default function AccountsPage() {
                 value={editing.layer}
                 onChange={(v) => setEditing({ ...editing, layer: v as EditForm["layer"] })}
                 options={Object.entries(ACCOUNT_LAYER).map(([k, v]) => ({ value: k, label: v }))}
+                disabled={updateAccount.isPending}
               />
             </div>
             <div>
@@ -230,6 +254,7 @@ export default function AccountsPage() {
                 onChange={(e) => setEditing({ ...editing, weeklyTarget: Number(e.target.value) || 0 })}
                 className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
                 min={1}
+                disabled={updateAccount.isPending}
               />
             </div>
             <div>
@@ -239,6 +264,7 @@ export default function AccountsPage() {
                 onChange={(e) => setEditing({ ...editing, xhsAccountUrl: e.target.value })}
                 className="w-full border border-hairline bg-[#F0F4FA] px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent transition-colors"
                 placeholder="小红书主页链接"
+                disabled={updateAccount.isPending}
               />
             </div>
             <div>
@@ -251,16 +277,22 @@ export default function AccountsPage() {
                   { value: "paused", label: "暂停" },
                   { value: "archived", label: "归档" },
                 ]}
+                disabled={updateAccount.isPending}
               />
             </div>
             <div className="md:col-span-2">
               <label className="eyebrow block mb-1.5">颜色</label>
-              <ColorPicker value={editing.mainColor} onChange={(c) => setEditing({ ...editing, mainColor: c })} />
+              <ColorPicker value={editing.mainColor} onChange={(c) => setEditing({ ...editing, mainColor: c })} disabled={updateAccount.isPending} />
             </div>
           </div>
+          {updateAccount.isError && (
+            <p className="text-sm text-[#991B1B]">{updateAccount.error?.message || "保存失败"}</p>
+          )}
           <div className="flex gap-3 justify-end pt-1">
-            <button type="button" onClick={() => setEditing(null)} className="px-4 py-1.5 text-sm text-muted hover:text-ink transition-colors">取消</button>
-            <button type="submit" className="px-5 py-1.5 bg-ink text-card text-sm rounded-full hover:bg-ink-soft transition-colors">保存</button>
+            <button type="button" onClick={() => setEditing(null)} disabled={updateAccount.isPending} className="px-4 py-1.5 text-sm text-muted hover:text-ink transition-colors disabled:opacity-50">取消</button>
+            <button type="submit" disabled={updateAccount.isPending} className="px-5 py-1.5 bg-ink text-card text-sm rounded-full hover:bg-ink-soft transition-colors disabled:opacity-50">
+              {updateAccount.isPending ? "保存中..." : "保存"}
+            </button>
           </div>
         </form>
       )}
@@ -302,15 +334,17 @@ export default function AccountsPage() {
                 <td className="px-4 py-3 text-right">
                   <button
                     onClick={() => handleEdit(acc)}
-                    className="text-xs text-accent hover:text-accent-deep mr-3"
+                    disabled={isBusy}
+                    className="text-xs text-accent hover:text-accent-deep mr-3 disabled:opacity-50"
                   >
                     编辑
                   </button>
                   <button
                     onClick={() => handleDelete(acc.id, acc.accountName)}
-                    className="text-xs text-muted hover:text-[#991B1B]"
+                    disabled={isBusy}
+                    className="text-xs text-muted hover:text-[#991B1B] disabled:opacity-50"
                   >
-                    删除
+                    {deleteAccount.isPending ? "删除中..." : "删除"}
                   </button>
                 </td>
               </tr>

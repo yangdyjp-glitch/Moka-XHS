@@ -36,24 +36,23 @@ export default function TopicCreateDialog({ onClose, onCreated }: Props) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (createMutation.isPending) return;
 
     if (!form.title.trim()) { setError("请填写标题"); return; }
     if (!form.plannedPublishDate) { setError("请选择计划发布时间"); return; }
     if (!form.topicType.trim()) { setError("请填写类型"); return; }
 
-    try {
-      await createMutation.mutateAsync({
-        title: form.title.trim(),
-        plannedPublishDate: form.plannedPublishDate,
-        topicType: form.topicType.trim(),
-        keywords: form.keywords ? form.keywords.split(/[,，\s]+/).filter(Boolean) : undefined,
-      });
-    } catch (err: any) {
-      setError(err.message || "创建失败");
-    }
+    createMutation.mutate({
+      title: form.title.trim(),
+      plannedPublishDate: form.plannedPublishDate,
+      topicType: form.topicType.trim(),
+      keywords: form.keywords ? form.keywords.split(/[,，\s]+/).filter(Boolean) : undefined,
+    }, {
+      onError: (err) => setError(err.message || "创建失败"),
+    });
   };
 
   return (
