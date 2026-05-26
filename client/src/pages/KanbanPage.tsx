@@ -124,7 +124,7 @@ export default function KanbanPage() {
       return (
         <button
           onClick={(e) => { e.stopPropagation(); handleStatusChange(topic.id, "writing"); }}
-          className="text-xs bg-ink text-card px-3 py-1 rounded-full hover:bg-ink-soft"
+          className="text-xs bg-[#6D28D9] text-white px-3 py-1 rounded-full hover:bg-[#5B21B6]"
         >
           开始写作
         </button>
