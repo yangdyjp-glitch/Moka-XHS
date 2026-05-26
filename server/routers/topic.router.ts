@@ -224,6 +224,9 @@ export const topicRouter = router({
     .mutation(async ({ ctx, input }) => {
       const [topic] = await db.select().from(topics).where(eq(topics.id, input.topicId)).limit(1);
       if (!topic) throw new TRPCError({ code: "NOT_FOUND", message: "选题不存在" });
+      if (topic.status === "published") {
+        return { success: true };
+      }
       if (topic.status !== "writing") {
         throw new TRPCError({ code: "BAD_REQUEST", message: "只有写作中的选题才能发布" });
       }
@@ -231,14 +234,18 @@ export const topicRouter = router({
         throw new TRPCError({ code: "FORBIDDEN", message: "只能发布自己的选题" });
       }
 
-      await db.insert(notes).values({
-        topicId: topic.id,
-        accountId: topic.accountId,
-        finalTitle: topic.title,
-        xhsNoteUrl: input.xhsNoteUrl,
-        coverImage: input.coverImage || null,
-        publishedAt: new Date(),
-      });
+      // Prevent duplicate notes
+      const existing = await db.select({ id: notes.id }).from(notes).where(eq(notes.topicId, topic.id)).limit(1);
+      if (existing.length === 0) {
+        await db.insert(notes).values({
+          topicId: topic.id,
+          accountId: topic.accountId,
+          finalTitle: topic.title,
+          xhsNoteUrl: input.xhsNoteUrl,
+          coverImage: input.coverImage || null,
+          publishedAt: new Date(),
+        });
+      }
 
       await db
         .update(topics)
