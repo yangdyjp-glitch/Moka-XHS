@@ -9,7 +9,7 @@ import {
   clearTokenCookie,
 } from "../_core/auth.js";
 import { db } from "../db.js";
-import { users } from "../../drizzle/schema.js";
+import { users, accounts, topics, comments } from "../../drizzle/schema.js";
 
 export const authRouter = router({
   login: publicProcedure
@@ -174,13 +174,27 @@ export const authRouter = router({
   deleteUser: leaderProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
+      // Pre-check: identify specific blocking references
+      const ownedAccounts = await db.select({ id: accounts.id }).from(accounts).where(eq(accounts.ownerId, input.id));
+      if (ownedAccounts.length > 0) {
+        throw new Error(`该用户有 ${ownedAccounts.length} 个关联账号，请先转移或删除关联账号`);
+      }
+      const createdTopics = await db.select({ id: topics.id }).from(topics).where(eq(topics.creatorId, input.id));
+      if (createdTopics.length > 0) {
+        throw new Error(`该用户有 ${createdTopics.length} 个关联选题，请先删除关联选题`);
+      }
+      const userComments = await db.select({ id: comments.id }).from(comments).where(eq(comments.authorId, input.id));
+      if (userComments.length > 0) {
+        throw new Error(`该用户有 ${userComments.length} 条评论，请先删除相关评论`);
+      }
+
       try {
         await db.delete(users).where(eq(users.id, input.id));
         return { success: true };
       } catch (e: any) {
         const code = e.code || e.cause?.code;
         if (code === "23503" || e.message?.includes("foreign key") || e.message?.includes("violates")) {
-          throw new Error("该用户有关联数据（账号/选题等），请先删除关联数据或改为禁用");
+          throw new Error("该用户有关联数据，无法删除");
         }
         throw e;
       }

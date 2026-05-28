@@ -2,7 +2,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { protectedProcedure, leaderProcedure, router } from "../_core/trpc.js";
 import { db } from "../db.js";
-import { accounts, users } from "../../drizzle/schema.js";
+import { accounts, users, topics, notes } from "../../drizzle/schema.js";
 
 export const accountRouter = router({
   // Returns accounts owned by the current user (for teacher account selection)
@@ -80,13 +80,22 @@ export const accountRouter = router({
   delete: leaderProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
+      const relatedTopics = await db.select({ id: topics.id }).from(topics).where(eq(topics.accountId, input.id));
+      if (relatedTopics.length > 0) {
+        throw new Error(`该账号有 ${relatedTopics.length} 个关联选题，请先删除关联选题`);
+      }
+      const relatedNotes = await db.select({ id: notes.id }).from(notes).where(eq(notes.accountId, input.id));
+      if (relatedNotes.length > 0) {
+        throw new Error(`该账号有 ${relatedNotes.length} 篇关联笔记，请先删除关联笔记`);
+      }
+
       try {
         await db.delete(accounts).where(eq(accounts.id, input.id));
         return { success: true };
       } catch (e: any) {
         const code = e.code || e.cause?.code;
         if (code === "23503" || e.message?.includes("foreign key") || e.message?.includes("violates")) {
-          throw new Error("该账号有关联数据（选题/笔记等），请先删除关联数据或改为归档");
+          throw new Error("该账号有关联数据，无法删除");
         }
         throw e;
       }
