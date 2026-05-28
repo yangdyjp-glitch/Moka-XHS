@@ -37,6 +37,7 @@ const CATEGORY_STYLE: Record<string, string> = {
 export default function RecommendationPage() {
   const { isLeader, isTeacher, selectedAccountId } = useAuth();
   const [creating, setCreating] = useState<number | null>(null);
+  const [selectedReviewId, setSelectedReviewId] = useState<number | null>(null);
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [showAllEvents, setShowAllEvents] = useState(false);
   const [eventForm, setEventForm] = useState({ title: "", eventDate: "", category: "other" });
@@ -44,7 +45,7 @@ export default function RecommendationPage() {
   const utils = trpc.useUtils();
   const recommendMutation = trpc.review.aiRecommend.useMutation();
   const pastQuery = trpc.review.listRecommendations.useQuery({ limit: 5 }, { refetchOnWindowFocus: false });
-  const reviewsQuery = trpc.review.list.useQuery({ type: "weekly", limit: 5 }, { refetchOnWindowFocus: false });
+  const reviewsQuery = trpc.review.list.useQuery({ limit: 10 }, { refetchOnWindowFocus: false, staleTime: 0 });
   const upcomingQuery = trpc.event.upcoming.useQuery({ days: 365 }, { refetchOnWindowFocus: false });
   const createEventMutation = trpc.event.create.useMutation({
     onSuccess: () => { setShowAddEvent(false); setEventForm({ title: "", eventDate: "", category: "other" }); utils.event.upcoming.invalidate(); },
@@ -57,9 +58,9 @@ export default function RecommendationPage() {
   const latestPastResult = latestPast?.resultJson as any;
   const displayResult = result || latestPastResult;
 
-  const handleGenerate = (reviewId?: number) => {
+  const handleGenerate = () => {
     recommendMutation.mutate({
-      reviewId,
+      reviewId: selectedReviewId || undefined,
       accountId: isTeacher ? (selectedAccountId || undefined) : undefined,
     });
   };
@@ -104,18 +105,21 @@ export default function RecommendationPage() {
           <div className="flex items-center gap-3">
             {reviewsQuery.data && reviewsQuery.data.length > 0 && (
               <Dropdown
-                value=""
-                onChange={(v) => { if (v) handleGenerate(Number(v)); }}
-                placeholder="基于已有报告..."
-                className="w-52"
-                options={reviewsQuery.data.map((r) => ({
-                  value: String(r.id),
-                  label: `${r.reviewType === "weekly" ? "周报" : "月报"} ${r.periodStart}~${r.periodEnd}`,
-                }))}
+                value={selectedReviewId ? String(selectedReviewId) : ""}
+                onChange={(v) => setSelectedReviewId(v ? Number(v) : null)}
+                placeholder="选择报告（可选）"
+                className="w-56"
+                options={[
+                  { value: "", label: "不基于报告" },
+                  ...reviewsQuery.data.map((r) => ({
+                    value: String(r.id),
+                    label: `${r.reviewType === "weekly" ? "周报" : "月报"} ${r.periodStart}~${r.periodEnd}`,
+                  })),
+                ]}
               />
             )}
             <button
-              onClick={() => handleGenerate()}
+              onClick={handleGenerate}
               disabled={recommendMutation.isPending}
               className="bg-ink text-card px-4 py-1.5 text-sm rounded-full hover:bg-ink-soft disabled:opacity-50"
             >
