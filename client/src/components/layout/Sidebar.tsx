@@ -29,6 +29,7 @@ const NAV_TAIL_TEACHER = [
 const ADMIN_ITEMS = [
   { path: "/admin/accounts", label: "账号管理", sub: "ACCOUNTS" },
   { path: "/admin/users", label: "用户管理", sub: "USERS" },
+  { path: "/admin/types", label: "类型管理", sub: "TYPES" },
 ];
 
 interface SidebarProps {

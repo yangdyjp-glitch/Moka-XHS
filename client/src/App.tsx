@@ -18,6 +18,7 @@ const DashboardPage = lazy(() => import("./pages/DashboardPage.js"));
 const AccountsPage = lazy(() => import("./pages/AccountsPage.js"));
 const UsersPage = lazy(() => import("./pages/UsersPage.js"));
 const TopicDetailPage = lazy(() => import("./pages/TopicDetailPage.js"));
+const TypesPage = lazy(() => import("./pages/TypesPage.js"));
 
 // Prefetch page chunks after initial render so they're cached for instant navigation
 function usePrefetchRoutes() {
@@ -89,6 +90,7 @@ function AppRoutes() {
           {!isTeacher && <Route path="/dashboard" component={DashboardPage} />}
           {!isTeacher && <Route path="/admin/accounts" component={AccountsPage} />}
           {!isTeacher && <Route path="/admin/users" component={UsersPage} />}
+          {!isTeacher && <Route path="/admin/types" component={TypesPage} />}
           <Route>
             <div className="text-center py-20 text-gray-400">页面不存在</div>
           </Route>

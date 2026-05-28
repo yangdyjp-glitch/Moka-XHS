@@ -284,4 +284,41 @@ export const topicRouter = router({
       .orderBy(topics.topicType);
     return result.map((r) => r.topicType);
   }),
+
+  // 获取类型及其选题数量
+  listTypesWithCount: leaderProcedure.query(async () => {
+    const result = await db
+      .select({
+        topicType: topics.topicType,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(topics)
+      .groupBy(topics.topicType)
+      .orderBy(topics.topicType);
+    return result;
+  }),
+
+  // 重命名类型（也可用于合并：将A重命名为已有的B）
+  renameType: leaderProcedure
+    .input(z.object({ oldType: z.string().min(1), newType: z.string().min(1) }))
+    .mutation(async ({ input }) => {
+      const affected = await db
+        .update(topics)
+        .set({ topicType: input.newType, updatedAt: new Date() })
+        .where(eq(topics.topicType, input.oldType))
+        .returning({ id: topics.id });
+      return { success: true, updatedCount: affected.length };
+    }),
+
+  // 删除类型：将该类型的所有选题改为"未分类"
+  deleteType: leaderProcedure
+    .input(z.object({ topicType: z.string().min(1) }))
+    .mutation(async ({ input }) => {
+      const affected = await db
+        .update(topics)
+        .set({ topicType: "未分类", updatedAt: new Date() })
+        .where(eq(topics.topicType, input.topicType))
+        .returning({ id: topics.id });
+      return { success: true, updatedCount: affected.length };
+    }),
 });
