@@ -3,9 +3,8 @@ import postgres from "postgres";
 import * as schema from "../drizzle/schema.js";
 
 const connectionString = process.env.DATABASE_URL!;
-const isSupabase = connectionString.includes("supabase");
 const client = postgres(connectionString, {
   prepare: false,
-  ssl: isSupabase ? "require" : undefined,
+  ssl: { rejectUnauthorized: false },
 });
 export const db = drizzle(client, { schema });
