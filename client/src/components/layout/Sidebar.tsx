@@ -59,10 +59,10 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       {/* Brand */}
       <div className="px-6 pt-8 pb-6">
         <h1 className="font-serif text-[22px] font-bold text-white tracking-tight leading-tight">
-          矩阵罗盘
+          媒体矩阵
         </h1>
-        <p className="font-mono mt-1.5 text-[#475569] text-[11px] tracking-[0.18em] uppercase">
-          MATRIX COMPASS
+        <p className="font-mono mt-1.5 text-[#6B5B8D] text-[11px] tracking-[0.18em] uppercase">
+          MEDIA MATRIX
         </p>
       </div>
 
@@ -71,8 +71,8 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         <div className="mx-4 mb-2">
           <div
             className={cn(
-              "flex items-center gap-2 px-4 py-2.5 rounded bg-[#1E293B]",
-              hasMultipleAccounts && "cursor-pointer hover:bg-[#334155] transition-colors"
+              "flex items-center gap-2 px-4 py-2.5 rounded bg-[#2D1F47]",
+              hasMultipleAccounts && "cursor-pointer hover:bg-[#3D2E55] transition-colors"
             )}
             onClick={hasMultipleAccounts ? () => { setSelectedAccountId(null); navigate("/"); } : undefined}
           >
@@ -104,8 +104,8 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             className={cn(
               "flex items-center justify-between px-4 py-3 rounded text-[15px] transition-colors",
               isActive(item.path)
-                ? "bg-[#1E3A5F] text-white font-medium"
-                : "hover:bg-[#1E293B] hover:text-[#CBD5E1]"
+                ? "bg-[#4C1D95] text-white font-medium"
+                : "hover:bg-[#2D1F47] hover:text-[#CBD5E1]"
             )}
           >
             <span>{item.label}</span>
@@ -122,7 +122,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           <>
             <div className="pt-6 pb-2 px-4">
               <p
-                className="text-[11px] font-mono tracking-widest text-[#475569]"
+                className="text-[11px] font-mono tracking-widest text-[#6B5B8D]"
                 style={{ letterSpacing: "0.18em" }}
               >
                 ADMIN
@@ -136,8 +136,8 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 className={cn(
                   "flex items-center justify-between px-4 py-3 rounded text-[15px] transition-colors",
                   isActive(item.path)
-                    ? "bg-[#1E3A5F] text-white font-medium"
-                    : "hover:bg-[#1E293B] hover:text-[#CBD5E1]"
+                    ? "bg-[#4C1D95] text-white font-medium"
+                    : "hover:bg-[#2D1F47] hover:text-[#CBD5E1]"
                 )}
               >
                 <span>{item.label}</span>
@@ -163,7 +163,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <p className="text-[14px] font-medium text-[#CBD5E1] truncate">
               {user?.name}
             </p>
-            <p className="text-[12px] text-[#475569] truncate font-mono">
+            <p className="text-[12px] text-[#6B5B8D] truncate font-mono">
               {user?.email}
             </p>
           </div>
@@ -192,7 +192,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       <aside
         className={cn(
           "fixed top-0 left-0 z-50 h-screen w-64 flex flex-col transition-transform lg:hidden",
-          "bg-[#0F172A] text-[#94A3B8]",
+          "bg-[#1A0F2E] text-[#94A3B8]",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -201,7 +201,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
       {/* Desktop sidebar — sticky, stays visible while scrolling */}
       <aside
-        className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0F172A] text-[#94A3B8] sticky top-0 h-screen overflow-y-auto"
+        className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#1A0F2E] text-[#94A3B8] sticky top-0 h-screen overflow-y-auto"
       >
         {sidebarContent}
       </aside>

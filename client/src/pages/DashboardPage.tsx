@@ -314,7 +314,7 @@ export default function DashboardPage() {
       {/* Footer */}
       <div className="border-t border-hairline pt-4 pb-2">
         <p className="mono-data text-muted text-center">
-          数据快照 · {new Date().toLocaleDateString("zh-CN")} · 矩阵罗盘
+          数据快照 · {new Date().toLocaleDateString("zh-CN")} · 媒体矩阵
         </p>
       </div>
     </div>

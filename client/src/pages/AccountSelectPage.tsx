@@ -26,9 +26,9 @@ export default function AccountSelectPage() {
     <div className="min-h-screen bg-paper flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-serif text-[28px] font-bold text-ink">矩阵罗盘</h1>
+          <h1 className="font-serif text-[28px] font-bold text-ink">媒体矩阵</h1>
           <p className="font-mono text-[11px] tracking-[0.18em] text-muted mt-1 uppercase">
-            MATRIX COMPASS
+            MEDIA MATRIX
           </p>
         </div>
 

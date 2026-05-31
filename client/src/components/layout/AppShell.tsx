@@ -19,7 +19,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 className="ml-3 text-sm font-serif font-bold text-white">矩阵罗盘</h1>
+          <h1 className="ml-3 text-sm font-serif font-bold text-white">媒体矩阵</h1>
         </header>
 
         <main className="flex-1">

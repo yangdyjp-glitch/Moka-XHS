@@ -26,8 +26,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm px-6">
         <div className="card-surface p-8 lg:p-10">
           <div className="text-center mb-8">
-            <p className="eyebrow mb-2">MATRIX COMPASS</p>
-            <h1 className="editorial-heading text-3xl">矩阵罗盘</h1>
+            <p className="eyebrow mb-2">MEDIA MATRIX</p>
+            <h1 className="editorial-heading text-3xl">媒体矩阵</h1>
             <div className="w-12 h-[1.5px] bg-ink mx-auto mt-4" />
           </div>
 
