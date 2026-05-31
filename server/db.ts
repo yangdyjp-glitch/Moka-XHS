@@ -6,6 +6,6 @@ const connectionString = process.env.DATABASE_URL!;
 const isSupabase = connectionString.includes("supabase");
 const client = postgres(connectionString, {
   prepare: false,
-  ssl: isSupabase ? { rejectUnauthorized: false } : undefined,
+  ssl: isSupabase ? "require" : undefined,
 });
 export const db = drizzle(client, { schema });
